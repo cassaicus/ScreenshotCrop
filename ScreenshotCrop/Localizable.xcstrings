@@ -158,6 +158,16 @@
         }
       }
     },
+    "Automatic page turning" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動ページめくり"
+          }
+        }
+      }
+    },
     "Background Whiteness:" : {
       "localizations" : {
         "en" : {
@@ -739,7 +749,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スクリーンショットモード"
+            "value" : "スクショモード"
           }
         }
       }

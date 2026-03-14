@@ -18,6 +18,9 @@ struct AutoScreenshotSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
+            
+            Text("Automatic page turning")
+            
             // 1列目：アクセシビリティの承認ボタン
             HStack {
                 // システムのアクセシビリティ設定画面を開くためのボタンです
