@@ -2,39 +2,41 @@
 
 ScreenshotCrop is a macOS tool designed to quickly capture and organize screenshots from full-screen eBook or comic reader applications.
 
-It automates the entire workflow of capturing pages, detecting page boundaries, and preparing clean images from screenshots. This makes it especially useful for working with full-screen readers where manual screenshotting and cropping would normally take a long time.
+It automates the workflow of capturing screenshots and detecting page areas, making it easy to convert raw screenshots into clean page images. This is especially useful for full-screen readers where manual screenshotting and cropping would otherwise be time-consuming.
 
 ## Features
 
 ### Automated Screenshot Capture
 
-ScreenshotCrop can automatically control the page navigation of a full-screen eBook reader by simulating arrow-key input.
-This allows the app to capture a continuous sequence of screenshots while automatically advancing through the book page by page.
+ScreenshotCrop can automatically simulate arrow-key input to control page navigation in a full-screen eBook reader.
+This allows the app to continuously capture screenshots while automatically turning pages.
 
 ### Automatic Background Detection
 
-After capturing the screenshots, ScreenshotCrop analyzes the images and automatically detects the background color used by the eBook reader interface.
-Using this information, it identifies page boundaries and separates individual pages from the surrounding UI.
+After capturing screenshots, ScreenshotCrop analyzes the images and automatically detects the background color used by the eBook reader interface.
+Based on this background detection, the app determines the correct cropping area and extracts the page content from the screenshot.
 
-### Support for Two-Page Spreads
+### Two-Page Spread Support
 
-Many eBooks and comics display pages in two-page spreads. ScreenshotCrop detects this layout and can automatically split the spread into individual pages when necessary.
+Many comics and illustrated books are displayed as two-page spreads. ScreenshotCrop supports this layout, allowing users to choose whether a captured image should be treated as a single page or as a two-page spread.
 
-### Spread Merging Check
+### Manual Spread Selection
 
-For cases where two pages should remain combined as a single spread, ScreenshotCrop allows you to review and confirm which images should be merged before finishing the process.
+When necessary, users can review the captured images and specify which ones represent two-page spreads.
+This simple confirmation step ensures accurate results for books that mix single pages and spreads.
 
 ## Workflow
 
-1. Launch your eBook or comic reader in full-screen mode.
+1. Open your eBook or comic reader in full-screen mode.
 2. Start ScreenshotCrop to automatically capture screenshots while turning pages.
-3. The app analyzes the screenshots and detects page boundaries.
-4. Two-page spreads are automatically split or prepared for merging.
-5. Review the spread merge selections and finish processing.
+3. The app analyzes each screenshot and detects the background color.
+4. Page areas are automatically cropped based on the detected background.
+5. Review the images and specify which ones should be treated as two-page spreads.
+6. Finish the process to generate clean page images.
 
 ## Result
 
-In just a few steps, ScreenshotCrop converts raw screenshots into clean, well-organized page images ready for further use.
+With only a few steps, ScreenshotCrop transforms raw screenshots into clean, well-organized page images.
 
 ## Platform
 
@@ -48,7 +50,8 @@ In just a few steps, ScreenshotCrop converts raw screenshots into clean, well-or
 
 ---
 
-ScreenshotCrop aims to remove the repetitive manual work involved in capturing and cleaning eBook screenshots, allowing you to focus on the content itself.
+ScreenshotCrop removes much of the repetitive work involved in capturing and processing eBook screenshots while still allowing users to confirm important layout decisions such as two-page spreads.
+
 
 
 
