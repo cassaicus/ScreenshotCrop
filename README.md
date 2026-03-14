@@ -1,6 +1,6 @@
 # ScreenshotCrop
 
-!["スクショ"]("https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg")
+!["スクショ"](https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg)
 !["スクショ"]("https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg")
 
 
