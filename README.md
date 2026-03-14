@@ -1,9 +1,6 @@
 # ScreenshotCrop
 
 !["スクショ"](https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg)
-!["スクショ"]("https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg")
-
-
 https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg
 
 ScreenshotCrop is a macOS tool designed to quickly capture and organize screenshots from full-screen eBook or comic reader applications.
