@@ -446,38 +446,6 @@
         }
       }
     },
-    "Frame 1:" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Frame 1:"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フレーム 1:"
-          }
-        }
-      }
-    },
-    "Frame 2:" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Frame 2:"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フレーム 2:"
-          }
-        }
-      }
-    },
     "Hide Floating Panel" : {
       "localizations" : {
         "en" : {
@@ -629,6 +597,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "出力フォルダ名"
+          }
+        }
+      }
+    },
+    "Page 1:" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ページ１:"
+          }
+        }
+      }
+    },
+    "Page 2:" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ページ２:"
           }
         }
       }

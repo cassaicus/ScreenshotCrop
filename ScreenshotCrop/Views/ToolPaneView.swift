@@ -317,13 +317,13 @@ struct ToolPaneView: View {
                     if store.isJapaneseStyle {
                         let size1 = pixelSize(for: store.cropRect2)
                         let size2 = pixelSize(for: store.cropRect)
-                        Text("Frame 1:")
+                        Text("Page 1:")
                         HStack(spacing: 8) {
                             Text("[H: \(size1.height)px]")
                             Text("[W: \(size1.width)px]")
                         }
 
-                        Text("Frame 2:")
+                        Text("Page 2:")
                         HStack(spacing: 8) {
                             Text("[H: \(size2.height)px]")
                             Text("[W: \(size2.width)px]")
@@ -343,13 +343,13 @@ struct ToolPaneView: View {
                         let size1 = pixelSize(for: store.cropRect)
                         let size2 = pixelSize(for: store.cropRect2)
 
-                        Text("Frame 1:")
+                        Text("Page 1:")
                         HStack(spacing: 8) {
                             Text("[H: \(size1.height)px]")
                             Text("[W: \(size1.width)px]")
                         }
 
-                        Text("Frame 2:")
+                        Text("Page 2:")
                         HStack(spacing: 8) {
                             Text("[H: \(size2.height)px]")
                             Text("[W: \(size2.width)px]")
