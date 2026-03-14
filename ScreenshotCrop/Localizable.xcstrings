@@ -28,7 +28,20 @@
       "shouldTranslate" : false
     },
     "%lld items selected" : {
-      "shouldTranslate" : false
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items selected"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld 個の項目を選択中"
+          }
+        }
+      }
     },
     "%lld%%" : {
       "shouldTranslate" : false
@@ -40,6 +53,12 @@
             "state" : "translated",
             "value" : "1. Load Files"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1. ファイル読み込み"
+          }
         }
       }
     },
@@ -49,6 +68,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "2. Configure Crop Area"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "2. 切り抜きエリア設定"
           }
         }
       }
@@ -60,6 +85,12 @@
             "state" : "translated",
             "value" : "3. Export Settings"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3. 書き出し設定"
+          }
         }
       }
     },
@@ -69,6 +100,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "4. Execute Cropping"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "4. 切り抜き実行"
           }
         }
       }
@@ -80,6 +117,12 @@
             "state" : "translated",
             "value" : "5. Check and combine images"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5. 画像確認・結合"
+          }
         }
       }
     },
@@ -89,6 +132,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Accessibility approval"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクセシビリティの承認"
           }
         }
       }
@@ -100,6 +149,12 @@
             "state" : "translated",
             "value" : "Automatic Area Specified"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動で領域を指定"
+          }
         }
       }
     },
@@ -110,6 +165,12 @@
             "state" : "translated",
             "value" : "Background Whiteness:"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "背景の白さ:"
+          }
         }
       }
     },
@@ -119,6 +180,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Base file name"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ベースファイル名"
           }
         }
       }
@@ -146,6 +213,12 @@
             "state" : "translated",
             "value" : "Cancel"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
+          }
         }
       }
     },
@@ -155,6 +228,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Combine"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "結合"
           }
         }
       }
@@ -166,6 +245,12 @@
             "state" : "translated",
             "value" : "Combine Images"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を結合"
+          }
         }
       }
     },
@@ -175,6 +260,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Configure Crop Area"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切り抜きエリア設定"
           }
         }
       }
@@ -186,6 +277,12 @@
             "state" : "translated",
             "value" : "Crop Current Image"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在の画像を切り抜く"
+          }
         }
       }
     },
@@ -195,6 +292,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Crop Mode"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切り抜きモード"
           }
         }
       }
@@ -206,6 +309,12 @@
             "state" : "translated",
             "value" : "Delete"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除"
+          }
         }
       }
     },
@@ -216,6 +325,12 @@
             "state" : "translated",
             "value" : "Delete unnecessary screenshots"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不要なスクリーンショットを削除"
+          }
         }
       }
     },
@@ -225,6 +340,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deselect All"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて選択解除"
           }
         }
       }
@@ -252,6 +373,12 @@
             "state" : "translated",
             "value" : "Drag to move, click to capture"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ドラッグで移動、クリックでキャプチャ"
+          }
         }
       }
     },
@@ -261,6 +388,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Export Format"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "書き出し形式"
           }
         }
       }
@@ -272,6 +405,12 @@
             "state" : "translated",
             "value" : "File name (appends _001, _002...)"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイル名 (_001, _002...が付加されます)"
+          }
         }
       }
     },
@@ -281,6 +420,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Finish image overlay mode"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像オーバーレイモードを終了"
           }
         }
       }
@@ -292,6 +437,12 @@
             "state" : "translated",
             "value" : "Folder name"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダ名"
+          }
         }
       }
     },
@@ -301,6 +452,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Frame 1:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フレーム 1:"
           }
         }
       }
@@ -312,6 +469,12 @@
             "state" : "translated",
             "value" : "Frame 2:"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フレーム 2:"
+          }
         }
       }
     },
@@ -322,6 +485,12 @@
             "state" : "translated",
             "value" : "Hide Floating Panel"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フローティングパネルを隠す"
+          }
         }
       }
     },
@@ -331,6 +500,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Japanese Style (Right-to-Left)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日本式 (右から左)"
           }
         }
       }
@@ -353,6 +528,12 @@
             "state" : "translated",
             "value" : "JPEG Quality:"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "JPEG品質:"
+          }
         }
       }
     },
@@ -362,6 +543,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Key input"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キー入力"
           }
         }
       }
@@ -389,6 +576,12 @@
             "state" : "translated",
             "value" : "Load Files"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ファイル読み込み"
+          }
         }
       }
     },
@@ -398,6 +591,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "None"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "なし"
           }
         }
       }
@@ -409,6 +608,12 @@
             "state" : "translated",
             "value" : "Open Folder"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダを開く"
+          }
         }
       }
     },
@@ -419,6 +624,12 @@
             "state" : "translated",
             "value" : "Output folder name"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出力フォルダ名"
+          }
         }
       }
     },
@@ -428,6 +639,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please select an image"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を選択してください"
           }
         }
       }
@@ -449,6 +666,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Process All Images"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての画像を処理"
           }
         }
       }
@@ -476,6 +699,12 @@
             "state" : "translated",
             "value" : "Scale Image"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像を拡大縮小"
+          }
         }
       }
     },
@@ -485,6 +714,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Screen capture requires permission."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面キャプチャには権限が必要です。"
           }
         }
       }
@@ -496,6 +731,12 @@
             "state" : "translated",
             "value" : "Screenshot Folder"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリーンショットフォルダ"
+          }
         }
       }
     },
@@ -505,6 +746,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Screenshot Mode"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリーンショットモード"
           }
         }
       }
@@ -516,6 +763,12 @@
             "state" : "translated",
             "value" : "Screenshot Settings"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリーンショット設定"
+          }
         }
       }
     },
@@ -525,6 +778,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Select All"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて選択"
           }
         }
       }
@@ -536,6 +795,12 @@
             "state" : "translated",
             "value" : "Select Folder"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダを選択"
+          }
         }
       }
     },
@@ -545,6 +810,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings ScreenCapture"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画面キャプチャ設定"
           }
         }
       }
@@ -556,6 +827,12 @@
             "state" : "translated",
             "value" : "Shooting interval"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撮影間隔"
+          }
         }
       }
     },
@@ -565,6 +842,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show Floating Panel"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フローティングパネルを表示"
           }
         }
       }
@@ -576,6 +859,12 @@
             "state" : "translated",
             "value" : "Spread Mode"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "見開きモード"
+          }
         }
       }
     },
@@ -585,6 +874,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Start capturing"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャプチャ開始"
           }
         }
       }
@@ -596,6 +891,12 @@
             "state" : "translated",
             "value" : "Stop capturing"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャプチャ停止"
+          }
         }
       }
     },
@@ -605,6 +906,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stopping conditions"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止条件"
           }
         }
       }
@@ -616,6 +923,12 @@
             "state" : "translated",
             "value" : "Sync frame sizes"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フレームサイズを同期"
+          }
         }
       }
     },
@@ -625,6 +938,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The folder contains images of different sizes. The crop position may be shifted."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダ内に異なるサイズの画像が含まれています。切り抜き位置がずれる可能性があります。"
           }
         }
       }
