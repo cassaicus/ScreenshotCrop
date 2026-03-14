@@ -21,7 +21,7 @@ struct AutoScreenshotSettingsView: View {
             // 1列目：アクセシビリティの承認ボタン
             HStack {
                 // システムのアクセシビリティ設定画面を開くためのボタンです
-                Button("アクセシビリティの承認") {
+                Button("Accessibility approval") {
                     let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
                     AXIsProcessTrustedWithOptions(options as CFDictionary)
                     
@@ -34,16 +34,17 @@ struct AutoScreenshotSettingsView: View {
                 .controlSize(.small)
 
             }
-
+            Text("Key input")
+                .font(.caption)
             // 2列目：キー入力方向セレクター
             HStack {
-                Text("キー入力方向")
-                    .font(.caption)
+//                Text("Key input")
+//                    .font(.caption)
                 Picker("", selection: $manager.autoCaptureDirection) {
-                    Text("上").tag("up")
-                    Text("下").tag("down")
-                    Text("右").tag("right")
-                    Text("左").tag("left")
+                    Text("left").tag("left")
+                    Text("up").tag("up")
+                    Text("down").tag("down")
+                    Text("right").tag("right")
                 }
                 .pickerStyle(.segmented)
                 .disabled(manager.isAutoCapturing)
@@ -51,7 +52,7 @@ struct AutoScreenshotSettingsView: View {
 
             // 3列目：撮影間隔
             HStack {
-                Text("撮影間隔")
+                Text("Shooting interval")
                     .font(.caption)
                 Spacer()
                 Stepper(value: $manager.autoCaptureInterval, in: 0.1...10.0, step: 0.1) {
@@ -63,7 +64,7 @@ struct AutoScreenshotSettingsView: View {
 
             // 4列目：停止条件
             VStack(alignment: .leading, spacing: 4) {
-                Text("停止条件 (重複判定しきい値)")
+                Text("Stopping conditions")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 HStack {
@@ -83,7 +84,7 @@ struct AutoScreenshotSettingsView: View {
                     manager.startAutoCapture()
                 }
             }) {
-                Text(manager.isAutoCapturing ? "キャプチャ停止" : "キャプチャ開始")
+                Text(manager.isAutoCapturing ? "Stop capturing" : "Start capturing")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 4)
             }
