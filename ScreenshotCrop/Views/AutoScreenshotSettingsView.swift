@@ -56,7 +56,7 @@ struct AutoScreenshotSettingsView: View {
                     .font(.caption)
                 Spacer()
                 Stepper(value: $manager.autoCaptureInterval, in: 0.1...10.0, step: 0.1) {
-                    Text("\(String(format: "%.1f", manager.autoCaptureInterval))秒")
+                    Text("\(String(format: "%.1f", manager.autoCaptureInterval))sec")
                         .monospacedDigit()
                 }
                 .disabled(manager.isAutoCapturing)

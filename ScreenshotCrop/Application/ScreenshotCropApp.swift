@@ -2,7 +2,7 @@
 //  ScreenshotCropApp.swift
 //  ScreenshotCrop
 //
-//  Created by ibis on 2026/03/14.
+//  Created on 2026/03/14.
 //
 
 import SwiftUI
