@@ -1,5 +1,7 @@
 # ScreenshotCrop
 
+https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg
+
 ScreenshotCrop is a macOS tool designed to quickly capture and organize screenshots from full-screen eBook or comic reader applications.
 
 It automates the workflow of capturing screenshots and detecting page areas, making it easy to convert raw screenshots into clean page images. This is especially useful for full-screen readers where manual screenshotting and cropping would otherwise be time-consuming.
