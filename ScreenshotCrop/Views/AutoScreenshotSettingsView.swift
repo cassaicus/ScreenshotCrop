@@ -1,15 +1,12 @@
 import SwiftUI
-// macOSのAppKitフレームワークをインポートします（NSWorkspaceを使用するため）
+// Import AppKit framework for NSWorkspace
 import AppKit
-// macOSのアクセシビリティAPIを使用するためにインポートします
+// Import ApplicationServices for Accessibility APIs
 import ApplicationServices
 
-/// 自動スクリーンショット設定を表示するビューです
-/// AppStore審査への影響を考慮し、機能を切り出しやすくするために別ファイルとしています
+/// View for configuring auto-screenshot settings
 struct AutoScreenshotSettingsView: View {
-    // 環境オブジェクトからImageStoreを取得します
     @EnvironmentObject var store: ImageStore
-    // ImageStore内のAutoScreenshotManagerを監視します
     @ObservedObject var manager: AutoScreenshotManager
 
     init(manager: AutoScreenshotManager) {
@@ -18,44 +15,37 @@ struct AutoScreenshotSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            
-            Text("Automatic page turning")
-            
-            // 1列目：アクセシビリティの承認ボタン
+            // Row 1: Accessibility Approval
             HStack {
-                // システムのアクセシビリティ設定画面を開くためのボタンです
-                Button("Accessibility approval") {
+                Button("Grant Accessibility") {
                     let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
                     AXIsProcessTrustedWithOptions(options as CFDictionary)
                     
-                    // アクセシビリティ設定のURLを定義します
+                    // Open Accessibility settings
                     let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-                    // デフォルトのブラウザやアプリでURL（システム設定）を開きます
                     NSWorkspace.shared.open(url)
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-
             }
-            Text("Key input")
+
+            Text("Key Input Direction")
                 .font(.caption)
-            // 2列目：キー入力方向セレクター
+            // Row 2: Direction Picker
             HStack {
-//                Text("Key input")
-//                    .font(.caption)
                 Picker("", selection: $manager.autoCaptureDirection) {
-                    Text("left").tag("left")
-                    Text("up").tag("up")
-                    Text("down").tag("down")
-                    Text("right").tag("right")
+                    Text("←").tag("left")
+                    Text("↑").tag("up")
+                    Text("↓").tag("down")
+                    Text("→").tag("right")
                 }
                 .pickerStyle(.segmented)
                 .disabled(manager.isAutoCapturing)
             }
 
-            // 3列目：撮影間隔
+            // Row 3: Capture Interval
             HStack {
-                Text("Shooting interval")
+                Text("Interval")
                     .font(.caption)
                 Spacer()
                 Stepper(value: $manager.autoCaptureInterval, in: 0.1...10.0, step: 0.1) {
@@ -65,9 +55,9 @@ struct AutoScreenshotSettingsView: View {
                 .disabled(manager.isAutoCapturing)
             }
 
-            // 4列目：停止条件
+            // Row 4: Stop Condition
             VStack(alignment: .leading, spacing: 4) {
-                Text("Stopping conditions")
+                Text("Stop Condition (Overlap Threshold)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 HStack {
@@ -79,7 +69,7 @@ struct AutoScreenshotSettingsView: View {
                 }
             }
 
-            // 5列目：キャプチャ開始ボタン
+            // Row 5: Start/Stop Button
             Button(action: {
                 if manager.isAutoCapturing {
                     manager.stopAutoCapture()
@@ -87,7 +77,7 @@ struct AutoScreenshotSettingsView: View {
                     manager.startAutoCapture()
                 }
             }) {
-                Text(manager.isAutoCapturing ? "Stop capturing" : "Start capturing")
+                Text(manager.isAutoCapturing ? "Stop Capture" : "Start Capture")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 4)
             }
@@ -96,7 +86,7 @@ struct AutoScreenshotSettingsView: View {
             .disabled(store.screenshotFolderURL == nil)
         }
         .padding(12)
-        .background(Color.blue.opacity(0.05)) // 背景色を設定
+        .background(Color.blue.opacity(0.05))
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)

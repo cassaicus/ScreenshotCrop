@@ -4,12 +4,6 @@
     "" : {
       "shouldTranslate" : false
     },
-    "[H: %lldpx]" : {
-      "shouldTranslate" : false
-    },
-    "[W: %lldpx]" : {
-      "shouldTranslate" : false
-    },
     "%@sec" : {
       "shouldTranslate" : false
     },
@@ -43,104 +37,37 @@
         }
       }
     },
+    "%lld x %lld px" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld x %2$lld px"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
     "%lld%%" : {
       "shouldTranslate" : false
     },
-    "1. Load Files" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1. Load Files"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1. ファイル読み込み"
-          }
-        }
-      }
+    "←" : {
+      "shouldTranslate" : false
     },
-    "2. Configure Crop Area" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "2. Configure Crop Area"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "2. 切り抜きエリア設定"
-          }
-        }
-      }
+    "→" : {
+      "shouldTranslate" : false
     },
-    "3. Export Settings" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "3. Export Settings"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "3. 書き出し設定"
-          }
-        }
-      }
+    "↑" : {
+      "shouldTranslate" : false
     },
-    "4. Execute Cropping" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "4. Execute Cropping"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "4. 切り抜き実行"
-          }
-        }
-      }
+    "↓" : {
+      "shouldTranslate" : false
     },
-    "5. Check and combine images" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "5. Check and combine images"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "5. 画像確認・結合"
-          }
-        }
-      }
+    "1 Page" : {
+      "shouldTranslate" : false
     },
-    "Accessibility approval" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accessibility approval"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アクセシビリティの承認"
-          }
-        }
-      }
+    "2 Pages" : {
+      "shouldTranslate" : false
     },
     "Automatic Area Specified" : {
       "localizations" : {
@@ -154,16 +81,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "自動で領域を指定"
-          }
-        }
-      }
-    },
-    "Automatic page turning" : {
-      "localizations" : {
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動ページめくり"
           }
         }
       }
@@ -328,6 +245,16 @@
         }
       }
     },
+    "Delete original images after combining" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "結合後に元の画像を削除"
+          }
+        }
+      }
+    },
     "Delete unnecessary screenshots" : {
       "localizations" : {
         "en" : {
@@ -356,22 +283,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "すべて選択解除"
-          }
-        }
-      }
-    },
-    "down" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "down"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "下"
           }
         }
       }
@@ -456,6 +367,16 @@
         }
       }
     },
+    "Grant Accessibility" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アクセシビリティ"
+          }
+        }
+      }
+    },
     "Hide Floating Panel" : {
       "localizations" : {
         "en" : {
@@ -468,6 +389,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フローティングパネルを隠す"
+          }
+        }
+      }
+    },
+    "Interval" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "インターバル"
+          }
+        }
+      }
+    },
+    "Is it Japanese Style (Right-to-Left)?" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これは日本式（右から左へ）ですか？"
+          }
+        }
+      }
+    },
+    "Is this a spread (2-page) document?" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これは見開き（2ページ）の文書ですか？"
           }
         }
       }
@@ -515,34 +466,22 @@
         }
       }
     },
-    "Key input" : {
+    "Key Input Direction" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Key input"
-          }
-        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "キー入力"
+            "value" : "キー入力方向"
           }
         }
       }
     },
-    "left" : {
+    "L to R" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "left"
-          }
-        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "左"
+            "value" : "左から右"
           }
         }
       }
@@ -559,6 +498,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ファイル読み込み"
+          }
+        }
+      }
+    },
+    "Next" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次へ"
           }
         }
       }
@@ -674,18 +623,12 @@
         }
       }
     },
-    "right" : {
+    "R to L" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "right"
-          }
-        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "右"
+            "value" : "右から左"
           }
         }
       }
@@ -818,22 +761,6 @@
         }
       }
     },
-    "Shooting interval" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Shooting interval"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "撮影間隔"
-          }
-        }
-      }
-    },
     "Show Floating Panel" : {
       "localizations" : {
         "en" : {
@@ -850,66 +777,68 @@
         }
       }
     },
-    "Spread Mode" : {
+    "Show in Finder" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spread Mode"
-          }
-        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "見開きモード"
+            "value" : "ファインダーを開く"
           }
         }
       }
     },
-    "Start capturing" : {
+    "Size: %lld x %lld px" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start capturing"
+            "state" : "new",
+            "value" : "Size: %1$lld x %2$lld px"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "キャプチャ開始"
+            "value" : "Size: %1$lld x %2$lld px"
           }
         }
       }
     },
-    "Stop capturing" : {
+    "Skip steps 3 & 4 and go to Step 5" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop capturing"
-          }
-        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "キャプチャ停止"
+            "value" : "ステップ3と4をスキップ、5に進みます。"
           }
         }
       }
     },
-    "Stopping conditions" : {
+    "Start Capture" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stopping conditions"
-          }
-        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "停止条件"
+            "value" : "スタート"
+          }
+        }
+      }
+    },
+    "Stop Capture" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ストップ"
+          }
+        }
+      }
+    },
+    "Stop Condition (Overlap Threshold)" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停止条件（重複閾値）"
           }
         }
       }
@@ -942,22 +871,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フォルダ内に異なるサイズの画像が含まれています。切り抜き位置がずれる可能性があります。"
-          }
-        }
-      }
-    },
-    "up" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "up"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上"
           }
         }
       }

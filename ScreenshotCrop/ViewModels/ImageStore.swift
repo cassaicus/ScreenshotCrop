@@ -80,6 +80,8 @@ final class ImageStore: ObservableObject {
     @Published var lastOutputFolderURL: URL? = nil
     // 結合機能が利用可能かどうかのフラグです
     @Published var canCombine: Bool = false
+    // 結合後に元画像を削除するかどうかのフラグです
+    @Published var shouldDeleteOriginalsAfterCombine: Bool = false
     // 直前の書き出しが見開きモードだったかどうかのフラグです
     @Published var wasLastExportSpreadMode: Bool = false
 
@@ -95,8 +97,13 @@ final class ImageStore: ObservableObject {
 
     // --- 自動スクリーンショット用 ---
     // 自動キャプチャを管理するオブジェクトです
+////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////
     @Published var autoManager: AutoScreenshotManager!
+////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////
 
+    
+    
+    
     // 画面収録権限があるかどうかのフラグです
     @Published var isScreenCaptureEnabled: Bool = false
     // フローティングパネルが表示されているかどうかのフラグです
@@ -112,8 +119,18 @@ final class ImageStore: ObservableObject {
     // ストアを初期化します
     init() {
         setupDebounce()
+        
+        
+        
         // 自動キャプチャマネージャーを初期化します
+////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////
         self.autoManager = AutoScreenshotManager(store: self)
+////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////
+
+        
+        
+        
+        
     }
 
     // デバウンス処理（0.5秒の遅延）を設定します
@@ -685,7 +702,7 @@ final class ImageStore: ObservableObject {
             }
 
             // ページ番号をカウントします（この画像だけで完結するため1から開始）
-            var pageCount = 1
+//            var pageCount = 1
 
             // 画像を読み込みます
             guard let image = NSImage(contentsOf: item.url) else {
@@ -693,16 +710,15 @@ final class ImageStore: ObservableObject {
                 return
             }
 
-            // 重複しない連番（バージョン）を検索します
-            let versionIndex = await findNextVersionIndex(in: outputFolderURL, fileNameBase: fileNameBase)
-            let versionString = String(format: "_%02d", versionIndex)
-            let versionedFileNameBase = fileNameBase + versionString
-
+            // 個別切り抜き用の連番を検索します（_other_001, _other_002...）
+            let otherBase = fileNameBase + "_other"
+            var nextNumber = await findNextOtherNumber(in: outputFolderURL, fileNameBase: otherBase)
+            
             // 切り抜きを行う枠の順序を取得します
             let rectsToCrop = getRectsToCrop()
 
-            // 切り抜き処理を実行します
-            await processImage(image, rectsToCrop: rectsToCrop, outputFolderURL: outputFolderURL, fileNameBase: versionedFileNameBase, pageCount: &pageCount)
+            // 切り抜き処理を実行します（fileNameBaseに"_other"を付加し、pageCountに検索した連番を渡します）
+            await processImage(image, rectsToCrop: rectsToCrop, outputFolderURL: outputFolderURL, fileNameBase: otherBase, pageCount: &nextNumber)
 
             // 完了後にフラグを戻します
             await MainActor.run {
@@ -732,20 +748,16 @@ final class ImageStore: ObservableObject {
         }
     }
 
-    // 指定されたフォルダ内で重複しない最小の連番（バージョン番号）を検索します
-    private func findNextVersionIndex(in folderURL: URL, fileNameBase: String) async -> Int {
+    // 指定されたフォルダ内で "_other_XXX" 形式の次の空き番号を検索して返します
+    private func findNextOtherNumber(in folderURL: URL, fileNameBase: String) async -> Int {
         let fileManager = FileManager.default
         let format = await MainActor.run { self.exportFormat }
         let ext = format.extensionName
         
         var index = 1
-        while index < 100 { // 無限ループ防止のため最大99回
-            let versionString = String(format: "_%02d", index)
-            // 最初のページ（_001）が存在するかチェックします
-            let testFileName = "\(fileNameBase)\(versionString)_001.\(ext)"
-            let testURL = folderURL.appendingPathComponent(testFileName)
-            
-            if !fileManager.fileExists(atPath: testURL.path) {
+        while index < 1000 { // 999まで
+            let testFileName = "\(fileNameBase)_\(String(format: "%03d", index)).\(ext)"
+            if !fileManager.fileExists(atPath: folderURL.appendingPathComponent(testFileName).path) {
                 return index
             }
             index += 1
@@ -829,6 +841,7 @@ final class ImageStore: ObservableObject {
         // 現在の設定をキャプチャします（非同期タスクで使用するため）
         let format = self.exportFormat
         let quality = self.jpgQuality
+        let shouldDelete = self.shouldDeleteOriginalsAfterCombine
 
         // 重い処理をバックグラウンドで実行します
         await Task.detached(priority: .userInitiated) {
@@ -892,6 +905,12 @@ final class ImageStore: ObservableObject {
                 // 非同期タスク内からメインアクターのメソッドを安全に呼び出し、画像を保存します
                 await MainActor.run {
                     self.saveImage(combinedImage, to: outputURL, format: format, quality: quality)
+
+                    // 保存が成功したか（ファイルが存在するか）確認してから元画像を削除します
+                    if shouldDelete && FileManager.default.fileExists(atPath: outputURL.path) {
+                        try? FileManager.default.removeItem(at: pair.first.url)
+                        try? FileManager.default.removeItem(at: second.url)
+                    }
                 }
             }
         }.value

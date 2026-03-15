@@ -12,20 +12,30 @@ struct CombineImagesView: View {
     @State private var pairs: [ImageStore.ImagePair] = []
     // 日本式（右開き）かどうかの状態変数です
     @State private var isJapaneseStyle: Bool = false
+    // 結合後に元画像を削除するかどうかの状態変数です
+    @State private var shouldDeleteOriginals: Bool = false
 
     // ビューの階層構造を定義します
     var body: some View {
         // 垂直方向に要素を並べます
         VStack(spacing: 0) {
             // ヘッダーセクション
-            HStack {
-                // タイトルを表示します
-                Text("Combine Images")
-                    .font(.headline)
-                Spacer()
-                // 日本式（右開き）の切り替えトグルです
-                Toggle("Japanese Style (Right-to-Left)", isOn: $isJapaneseStyle)
-                    .toggleStyle(.checkbox)
+            VStack(spacing: 8) {
+                HStack {
+                    // タイトルを表示します
+                    Text("Combine Images")
+                        .font(.headline)
+                    Spacer()
+                    // 日本式（右開き）の切り替えトグルです
+                    Toggle("Japanese Style (Right-to-Left)", isOn: $isJapaneseStyle)
+                        .toggleStyle(.checkbox)
+                }
+                HStack {
+                    Spacer()
+                    // 結合後に元画像を削除するトグルです
+                    Toggle("Delete original images after combining", isOn: $shouldDeleteOriginals)
+                        .toggleStyle(.checkbox)
+                }
             }
             .padding()
             // 背景色をウィンドウの標準色に設定します
@@ -101,6 +111,7 @@ struct CombineImagesView: View {
                 Button("Combine") {
                     // 非同期で結合処理を実行します
                     Task {
+                        store.shouldDeleteOriginalsAfterCombine = shouldDeleteOriginals
                         await store.combineImages(pairs: pairs, isJapaneseStyle: isJapaneseStyle)
                         // 完了後にビューを閉じます
                         dismiss()
@@ -120,6 +131,7 @@ struct CombineImagesView: View {
             setupPairs()
             // 初期状態をストアから取得します
             isJapaneseStyle = store.isJapaneseStyle
+            shouldDeleteOriginals = store.shouldDeleteOriginalsAfterCombine
         }
     }
 
