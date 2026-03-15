@@ -199,6 +199,7 @@ struct ToolPaneView: View {
                 .opacity(store.screenshotFolderURL == nil ? 0.3 : 1.0)
                 .disabled(store.screenshotFolderURL == nil)
                 
+               
                 // 自動スクリーンショット設定グループ
 ////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////
                 AutoScreenshotSettingsView(manager: store.autoManager)
