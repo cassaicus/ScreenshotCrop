@@ -44,4 +44,13 @@ final class ThumbnailCache {
         // 生成されたサムネイル画像を返します
         return image
     }
+    // 指定されたURLのキャッシュを削除します
+    func removeThumbnail(for url: URL) {
+        cache.removeObject(forKey: url as NSURL)
+    }
+
+    // すべてのキャッシュをクリアします
+    func clear() {
+        cache.removeAllObjects()
+    }
 }

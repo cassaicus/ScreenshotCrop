@@ -908,6 +908,10 @@ final class ImageStore: ObservableObject {
 
                     // 保存が成功したか（ファイルが存在するか）確認してから元画像を削除します
                     if shouldDelete && FileManager.default.fileExists(atPath: outputURL.path) {
+                        // キャッシュを削除します
+                        ThumbnailCache.shared.removeThumbnail(for: pair.first.url)
+                        ThumbnailCache.shared.removeThumbnail(for: second.url)
+    
                         try? FileManager.default.removeItem(at: pair.first.url)
                         try? FileManager.default.removeItem(at: second.url)
                     }
@@ -1001,6 +1005,9 @@ final class ImageStore: ObservableObject {
 
         // 各アイテムに対して削除を試みます
         for item in itemsToDelete {
+            // キャッシュを削除します
+            ThumbnailCache.shared.removeThumbnail(for: item.url)
+
             try? fileManager.removeItem(at: item.url)
         }
 
