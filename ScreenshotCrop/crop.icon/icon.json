@@ -11,10 +11,10 @@
           "image-name" : "croppp.png",
           "name" : "croppp",
           "position" : {
-            "scale" : 1,
+            "scale" : 1.25,
             "translation-in-points" : [
-              0,
-              67.07504540728985
+              -64.921875,
+              71.41879540728985
             ]
           }
         }
