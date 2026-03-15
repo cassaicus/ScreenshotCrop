@@ -985,8 +985,15 @@ final class ImageStore: ObservableObject {
 
         // 撮影音を鳴らします（確実に存在し、音量設定の影響を受けにくいNSSoundを使用します）
         // カメラのシャッター音に近いシステムサウンドを再生します
-        NSSound(named: "Hero")?.play()
-
+        // 連続再生時に音が途切れないよう、再生中の場合は複製して再生します
+        if let sound = NSSound(named: "Hero") {
+            if sound.isPlaying {
+                (sound.copy() as? NSSound)?.play()
+            } else {
+                sound.play()
+            }
+        }
+        
         capturedCount += 1
 
         // リストを更新（新しい画像を読み込む）

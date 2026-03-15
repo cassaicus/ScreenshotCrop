@@ -132,8 +132,16 @@ final class AutoScreenshotManager: ObservableObject {
         store?.saveImageExternal(image, to: fileURL, format: .png, quality: 1.0)
 
         // 撮影音を鳴らします。
-        NSSound(named: "Hero")?.play()
-
+        // NSSound(named: "Hero")?.play()
+        // 連続再生時に音が途切れないよう、再生中の場合は複製して再生します
+        if let sound = NSSound(named: "Hero") {
+            if sound.isPlaying {
+                (sound.copy() as? NSSound)?.play()
+            } else {
+                sound.play()
+            }
+        }
+        
         store?.capturedCount += 1
 
         // リストを更新（新しい画像を読み込む）。
