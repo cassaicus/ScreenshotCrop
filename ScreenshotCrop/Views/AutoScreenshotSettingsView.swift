@@ -14,7 +14,9 @@ struct AutoScreenshotSettingsView: View {
     }
 
     var body: some View {
+        Text("To take a screenshot, click on the floating panel or use the automatic mode below.")
         VStack(alignment: .leading, spacing: 10) {
+            Text("automatic mode")
             // Row 1: Accessibility Approval
             HStack {
                 Button("Grant Accessibility") {

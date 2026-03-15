@@ -85,6 +85,16 @@
         }
       }
     },
+    "automatic mode" : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動モード"
+          }
+        }
+      }
+    },
     "Background Whiteness:" : {
       "localizations" : {
         "en" : {
@@ -871,6 +881,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フォルダ内に異なるサイズの画像が含まれています。切り抜き位置がずれる可能性があります。"
+          }
+        }
+      }
+    },
+    "To take a screenshot, click on the floating panel or use the automatic mode below." : {
+      "localizations" : {
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スクリーンショットを撮るには、フローティングパネルをクリックするか、下の自動モードを使用してください。"
           }
         }
       }
