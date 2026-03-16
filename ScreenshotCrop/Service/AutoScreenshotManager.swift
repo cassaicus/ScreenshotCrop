@@ -16,6 +16,8 @@ final class AutoScreenshotManager: ObservableObject {
     @Published var autoCaptureDirection: String = "down"
     // 自動キャプチャの停止条件（しきい値）です。
     @Published var autoCaptureThreshold: Double = 0.5
+    // カウントダウンの残り秒数です。
+    @Published var countdownRemaining: Int? = nil
 
     // 重複検知のためのデテクターです。
     private let duplicateDetector: DuplicateDetecting = VisionDuplicateDetector()
@@ -41,11 +43,16 @@ final class AutoScreenshotManager: ObservableObject {
         // メインアクター上で実行されるタスクを作成します。
         Task {
             // 最初に5秒間待機し、その間1秒ごとにビープ音を鳴らします。
-            for _ in 0..<5 {
-                if !self.isAutoCapturing { return }
+            for i in (1...5).reversed() {
+                if !self.isAutoCapturing {
+                    self.countdownRemaining = nil
+                    return
+                }
+                self.countdownRemaining = i
                 NSSound.beep()
                 try? await Task.sleep(nanoseconds: 1_000_000_000)
             }
+            self.countdownRemaining = nil
 
             // 開始時の連番を取得します。
             var currentNumber = self.getNextScreenshotNumber()
@@ -96,6 +103,7 @@ final class AutoScreenshotManager: ObservableObject {
     // 自動キャプチャを停止します。
     func stopAutoCapture() {
         isAutoCapturing = false
+        countdownRemaining = nil
     }
 
     // 次の連番を取得します。

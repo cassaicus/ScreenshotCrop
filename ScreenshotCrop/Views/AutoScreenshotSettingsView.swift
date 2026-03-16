@@ -79,9 +79,15 @@ struct AutoScreenshotSettingsView: View {
                     manager.startAutoCapture()
                 }
             }) {
-                Text(manager.isAutoCapturing ? "Stop Capture" : "Start Capture")
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 4)
+                Group {
+                    if let countdown = manager.countdownRemaining {
+                        Text("\(countdown)")
+                    } else {
+                        Text(manager.isAutoCapturing ? "Stop Capture" : "Start Capture")
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 4)
             }
             .buttonStyle(.borderedProminent)
             .tint(manager.isAutoCapturing ? .red : .blue)
