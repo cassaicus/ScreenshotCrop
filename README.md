@@ -2,58 +2,84 @@
 
 !["スクショ"](https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg)
 
-ScreenshotCrop is a macOS tool designed to quickly capture and organize screenshots from full-screen eBook or comic reader applications.
+# ScreenshotCrop
 
-It automates the workflow of capturing screenshots and detecting page areas, making it easy to convert raw screenshots into clean page images. This is especially useful for full-screen readers where manual screenshotting and cropping would otherwise be time-consuming.
+**Automatically detect and crop the content area from large sets of screenshots.**
 
-## Features
+ScreenshotCrop is a macOS tool designed to quickly process folders containing many screenshots captured from full-screen applications.
 
-### Automated Screenshot Capture
+Instead of manually cropping each image, ScreenshotCrop detects the content region and applies the same crop area to every image in the folder.
 
-ScreenshotCrop can automatically simulate arrow-key input to control page navigation in a full-screen eBook reader.
-This allows the app to continuously capture screenshots while automatically turning pages.
-
-### Automatic Background Detection
-
-After capturing screenshots, ScreenshotCrop analyzes the images and automatically detects the background color used by the eBook reader interface.
-Based on this background detection, the app determines the correct cropping area and extracts the page content from the screenshot.
-
-### Two-Page Spread Support
-
-Many comics and illustrated books are displayed as two-page spreads. ScreenshotCrop supports this layout, allowing users to choose whether a captured image should be treated as a single page or as a two-page spread.
-
-### Manual Spread Selection
-
-When necessary, users can review the captured images and specify which ones represent two-page spreads.
-This simple confirmation step ensures accurate results for books that mix single pages and spreads.
-
-## Workflow
-
-1. Open your eBook or comic reader in full-screen mode.
-2. Start ScreenshotCrop to automatically capture screenshots while turning pages.
-3. The app analyzes each screenshot and detects the background color.
-4. Page areas are automatically cropped based on the detected background.
-5. Review the images and specify which ones should be treated as two-page spreads.
-6. Finish the process to generate clean page images.
-
-## Result
-
-With only a few steps, ScreenshotCrop transforms raw screenshots into clean, well-organized page images.
-
-## Platform
-
-* macOS
-
-## Use Cases
-
-* Archiving eBook or comic pages from screenshots
-* Preparing images for OCR or translation workflows
-* Organizing captured reading material
+This makes it easy to organize large screenshot collections efficiently.
 
 ---
 
-ScreenshotCrop removes much of the repetitive work involved in capturing and processing eBook screenshots while still allowing users to confirm important layout decisions such as two-page spreads.
+## Features
 
+• **Automatic Content Detection**
+Detects the visible content region inside screenshots.
+
+• **Batch Cropping**
+Apply the same crop area to all images in a folder.
+
+• **Overlay Preview**
+Multiple screenshots can be overlaid into a single composite view to help visually identify boundaries.
+
+• **Fast Processing**
+Designed to handle large screenshot sets smoothly.
+
+• **Manual Adjustment**
+Users can easily adjust the crop area if needed.
+
+---
+
+## Example Workflow
+
+1. Capture multiple screenshots from a full-screen application.
+2. Place them into a folder.
+3. Open the folder in ScreenshotCrop.
+4. The tool automatically suggests a crop region.
+5. Apply the crop to all images instantly.
+
+---
+
+## Use Cases
+
+ScreenshotCrop can be useful for:
+
+• Organizing screenshots captured during research
+• Cleaning UI screenshots for documentation
+• Preparing images for datasets
+• Processing screenshots captured from full-screen apps
+
+---
+
+## Why ScreenshotCrop?
+
+When dealing with hundreds of screenshots, manually cropping each image becomes time-consuming.
+
+ScreenshotCrop solves this by automatically detecting the common content region across multiple screenshots and applying the crop in one step.
+
+---
+
+## Technical Notes
+
+ScreenshotCrop analyzes multiple screenshots to estimate the most likely content boundaries using image processing techniques.
+
+No external services or cloud processing are required.
+
+All processing runs locally on your Mac.
+
+---
+
+## Disclaimer
+
+ScreenshotCrop is a general screenshot processing tool.
+
+It does **not** bypass DRM, encryption, or copy-protection mechanisms.
+Users are responsible for complying with the terms of service of any applications used to capture screenshots.
+
+---
 
 # ScreenshotCrop
 
