@@ -101,12 +101,12 @@ struct ToolPaneView: View {
             withAnimation { currentStep = step }
         }) {
             HStack {
-                Text("\(step). ")
-                    .font(.headline)
-                    .foregroundColor(currentStep == step ? .primary : .secondary)
-                + Text(title)
-                    .font(.headline)
-                    .foregroundColor(currentStep == step ? .primary : .secondary)
+                HStack(spacing: 0) {
+                    Text("\(step). ")
+                    Text(title)
+                }
+                .font(.headline)
+                .foregroundColor(currentStep == step ? .primary : .secondary)
                 Spacer()
                 if currentStep > step {
                     Image(systemName: "checkmark.circle.fill")
