@@ -48,6 +48,9 @@
       },
       "shouldTranslate" : false
     },
+    "%lld. " : {
+
+    },
     "%lld%%" : {
       "shouldTranslate" : false
     },
@@ -158,6 +161,9 @@
           }
         }
       }
+    },
+    "Check and combine images" : {
+
     },
     "Combine" : {
       "localizations" : {
@@ -313,6 +319,9 @@
         }
       }
     },
+    "Execute Cropping" : {
+
+    },
     "Export Format" : {
       "localizations" : {
         "en" : {
@@ -328,6 +337,9 @@
           }
         }
       }
+    },
+    "Export Settings" : {
+
     },
     "File name (appends _001, _002...)" : {
       "localizations" : {

@@ -96,12 +96,15 @@ struct ToolPaneView: View {
     }
     
     // ステップごとのヘッダーを表示するヘルパー関数です
-    private func stepHeader(title: String, step: Int) -> some View {
+    private func stepHeader(title: LocalizedStringKey, step: Int) -> some View {
         Button(action: {
             withAnimation { currentStep = step }
         }) {
             HStack {
-                Text(title)
+                Text("\(step). ")
+                    .font(.headline)
+                    .foregroundColor(currentStep == step ? .primary : .secondary)
+                + Text(title)
                     .font(.headline)
                     .foregroundColor(currentStep == step ? .primary : .secondary)
                 Spacer()
@@ -201,7 +204,7 @@ struct ToolPaneView: View {
                 
                 // 自動スクリーンショット設定グループ
 ////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////
-                AutoScreenshotSettingsView(manager: store.autoManager)
+//                AutoScreenshotSettingsView(manager: store.autoManager)
 ////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////        ////////////////////////////////////////////////////////////
                 
             }
@@ -231,7 +234,7 @@ struct ToolPaneView: View {
     // 切り抜き機能のセクション
     private var cropSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            stepHeader(title: "1. Load Files", step: 1)
+            stepHeader(title: "Load Files", step: 1)
             if currentStep == 1 {
                 
                 Button(action: {
@@ -278,7 +281,7 @@ struct ToolPaneView: View {
                 }
             }
             Divider()
-            stepHeader(title: "2. Configure Crop Area", step: 2)
+            stepHeader(title: "Configure Crop Area", step: 2)
             if currentStep == 2 {
                 VStack(alignment: .leading, spacing: 16) {
                     // 見開きモードの問合せ
@@ -446,7 +449,7 @@ struct ToolPaneView: View {
                 .padding(.vertical, 8)
             }
             Divider()
-            stepHeader(title: "3. Export Settings", step: 3)
+            stepHeader(title: "Export Settings", step: 3)
             if currentStep == 3 {
                 // フォルダ名入力セクションです
                 VStack(alignment: .leading, spacing: 4) {
@@ -528,7 +531,7 @@ struct ToolPaneView: View {
                 }
             }
             Divider()
-            stepHeader(title: "4. Execute Cropping", step: 4)
+            stepHeader(title: "Execute Cropping", step: 4)
             if currentStep == 4 {
                 
                 // 現在表示されている画像だけを切り抜くボタンです
@@ -626,7 +629,7 @@ struct ToolPaneView: View {
                 }
             }
             Divider()
-            stepHeader(title: "5. Check and combine images", step: 5)
+            stepHeader(title: "Check and combine images", step: 5)
             if currentStep == 5 {
                 VStack(spacing: 12) {
                     // 画像切り出し中の進捗表示
@@ -681,6 +684,5 @@ struct ToolPaneView: View {
         }
     }
 }
-
 
 
