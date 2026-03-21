@@ -1,7 +1,5 @@
 # ScreenshotCrop
 
-!["スクショ"](https://github.com/cassaicus/ScreenshotCrop/blob/main/18.58.49.jpg)
-
 ![18 58 49](https://github.com/user-attachments/assets/b7a78190-02a5-4028-a3b5-95ad3dae832c)
 
 # ScreenshotCrop
