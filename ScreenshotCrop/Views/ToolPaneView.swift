@@ -429,7 +429,6 @@ struct ToolPaneView: View {
                         Label("PNG Saved", systemImage: "checkmark.circle.fill")
                             .foregroundColor(.green)
                         Text(url.lastPathComponent).font(.caption).textSelection(.enabled)
-                        Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
                     }
                 } else {
                 // 現在表示されている画像だけを切り抜くボタンです
@@ -569,7 +568,7 @@ struct ToolPaneView: View {
 
                     } else if let url = store.lastMockupOutputURL {
                         Text(url.lastPathComponent).font(.caption).textSelection(.enabled)
-                        Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+                        Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([url.deletingLastPathComponent()]) }
                     } else {
                         Text("Exported mockups will be available here after cropping.")
                             .font(.caption)
@@ -580,7 +579,7 @@ struct ToolPaneView: View {
                     // Finderで開くボタン
                     if !isMockupMode, let url = store.lastOutputFolderURL {
                         Button(action: {
-                            NSWorkspace.shared.selectFile(nil, inFileViewerRootedAtPath: url.path)
+                            NSWorkspace.shared.activateFileViewerSelecting([url])
                         }) {
                             HStack {
                                 Image(systemName: "folder")
