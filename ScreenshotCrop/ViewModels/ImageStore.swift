@@ -12,6 +12,167 @@ import ImageIO
 // メインスレッドで動作することを保証する、画像データを管理するためのストアクラスです
 @MainActor
 final class ImageStore: ObservableObject {
+    enum CropMode: Hashable {
+        case book
+        case mockup
+    }
+
+    @Published var cropMode: CropMode = .book
+
+    @Published var mockupContours: MockupContourResult?
+    @Published var mockupContourImageID: UUID?
+    @Published var isDetectingMockupContours = false
+    @Published var mockupContourError: String?
+    @Published var mockupContrast: Double = 3 {
+        didSet { saveMockupDetectionSettings() }
+    }
+    @Published var mockupDetectsDarkOnLight = true {
+        didSet { saveMockupDetectionSettings() }
+    }
+    @Published var mockupMaximumImageDimension = 2048 {
+        didSet { saveMockupDetectionSettings() }
+    }
+    enum MockupPreviewBackground: Hashable {
+        case checkerboard, white, black
+    }
+
+    @Published var isShowingMockupTransparencyPreview = false
+    @Published var mockupPreviewBackground: MockupPreviewBackground = .checkerboard
+    @Published var selectedMockupBodyCandidate: Int?
+    private var mockupDetectionTask: Task<MockupContourResult, Error>?
+    private var mockupDetectionID: UUID?
+
+    @Published var lastMockupOutputURL: URL?
+    @Published var mockupExportError: String?
+
+    @Published var mockupBatchResult: MockupBatchResult?
+
+    func exportAllMockups(folderName: String, fileNameBase: String) {
+        guard canExportSelectedMockup, let result = mockupContours,
+              let index = selectedMockupBodyCandidate,
+              let reference = items.first(where: { $0.id == selectedID }) else { return }
+        let points = result.contours[index]
+        let urls = items.map(\.url)
+        let referenceURL = reference.url
+        isProcessing = true
+        totalCount = urls.count
+        processedCount = 0
+        mockupExportError = nil
+        mockupBatchResult = nil
+        lastMockupOutputURL = nil
+        Task {
+            defer { isProcessing = false }
+            do {
+                let report = try await Task.detached(priority: .userInitiated) {
+                    try await MockupPNGExporter.saveBatch(
+                        urls: urls, referenceURL: referenceURL, points: points,
+                        folderName: folderName, fileNameBase: fileNameBase
+                    ) { count in
+                        await MainActor.run { self.processedCount = count }
+                    }
+                }.value
+                mockupBatchResult = report
+                lastMockupOutputURL = report.saved.last
+            } catch {
+                mockupExportError = error.localizedDescription
+            }
+        }
+    }
+
+    var canExportSelectedMockup: Bool {
+        guard cropMode == .mockup, !isProcessing, !isDetectingMockupContours,
+              selectedID != nil, selectedID == mockupContourImageID,
+              let result = mockupContours, let index = selectedMockupBodyCandidate else { return false }
+        return result.bodyCandidateIndices.contains(index)
+    }
+
+    func exportSelectedMockup(folderName: String, fileNameBase: String) {
+        guard canExportSelectedMockup, let result = mockupContours,
+              let index = selectedMockupBodyCandidate,
+              let item = items.first(where: { $0.id == selectedID }) else { return }
+        let points = result.contours[index]
+        let url = item.url
+        isProcessing = true
+        totalCount = 1
+        processedCount = 0
+        mockupBatchResult = nil
+        mockupExportError = nil
+        lastMockupOutputURL = nil
+        Task {
+            defer { isProcessing = false }
+            do {
+                lastMockupOutputURL = try await Task.detached(priority: .userInitiated) {
+                    try MockupPNGExporter.save(url: url, points: points,
+                                               folderName: folderName, fileNameBase: fileNameBase)
+                }.value
+                processedCount = 1
+            } catch {
+                mockupExportError = error.localizedDescription
+            }
+        }
+    }
+
+    private func saveMockupDetectionSettings() {
+        MockupDetectionSettings(contrast: mockupContrast,
+                                detectsDarkOnLight: mockupDetectsDarkOnLight,
+                                maximumImageDimension: mockupMaximumImageDimension).save()
+    }
+
+    func resetMockupDetectionSettings() {
+        let settings = MockupDetectionSettings()
+        mockupContrast = settings.contrast
+        mockupDetectsDarkOnLight = settings.detectsDarkOnLight
+        mockupMaximumImageDimension = settings.maximumImageDimension
+    }
+
+    func clearMockupContours() {
+        mockupDetectionTask?.cancel()
+        mockupDetectionTask = nil
+        mockupDetectionID = nil
+        isShowingMockupTransparencyPreview = false
+        mockupContours = nil
+        selectedMockupBodyCandidate = nil
+        mockupContourImageID = nil
+        mockupContourError = nil
+        isDetectingMockupContours = false
+    }
+
+    func detectMockupContours() {
+        guard cropMode == .mockup, !isDetectingMockupContours,
+              let item = items.first(where: { $0.id == selectedID }) else { return }
+        clearMockupContours()
+        let detectionID = UUID()
+        mockupDetectionID = detectionID
+        isDetectingMockupContours = true
+        let contrast = Float(mockupContrast)
+        // 暗い背景上の本体と側面ボタンを検出するため、基準値は0に固定します。
+        let contrastPivot: Float = 0
+        let darkOnLight = mockupDetectsDarkOnLight
+        let dimension = mockupMaximumImageDimension
+        let url = item.url
+        let task = Task.detached(priority: .userInitiated) {
+            try MockupContourDetector.detect(url: url, contrast: contrast, contrastPivot: contrastPivot,
+                                            detectsDarkOnLight: darkOnLight,
+                                            maximumImageDimension: dimension)
+        }
+        mockupDetectionTask = task
+        Task {
+            do {
+                let result = try await task.value
+                guard mockupDetectionID == detectionID, selectedID == item.id else { return }
+                mockupContours = result
+                selectedMockupBodyCandidate = result.bodyCandidateIndices.first
+                mockupContourImageID = item.id
+            } catch {
+                guard mockupDetectionID == detectionID else { return }
+                mockupContourError = error.localizedDescription
+            }
+            guard mockupDetectionID == detectionID else { return }
+            isDetectingMockupContours = false
+            mockupDetectionTask = nil
+        }
+    }
+
     // 保存形式の定義
     enum ExportFormat: String {
         case png = "PNG"
@@ -26,7 +187,11 @@ final class ImageStore: ObservableObject {
     // 読み込まれた画像アイテムのリストです。変更時にビューに通知されます
     @Published var items: [ImageItem] = []
     // 現在選択されている画像のIDです。変更時にビューに通知されます
-    @Published var selectedID: UUID?
+    @Published var selectedID: UUID? {
+        didSet {
+            if oldValue != selectedID { clearMockupContours() }
+        }
+    }
     // 切り抜き枠を表示するかどうかのフラグです。変更時にビューに通知されます
     @Published var isShowingCropBox: Bool = false
     // 見開きモードかどうかのフラグです。変更時にビューに通知されます
@@ -118,6 +283,11 @@ final class ImageStore: ObservableObject {
 
     // ストアを初期化します
     init() {
+        let settings = MockupDetectionSettings.load()
+        mockupContrast = settings.contrast
+        mockupDetectsDarkOnLight = settings.detectsDarkOnLight
+        mockupMaximumImageDimension = settings.maximumImageDimension
+
         setupDebounce()
         
         
@@ -628,6 +798,8 @@ final class ImageStore: ObservableObject {
 
     // 全ての画像を切り抜いて一括保存する処理です
     func executeCropAll(folderName: String, fileNameBase: String) {
+        // モック用の透過マスクを実装するまでは書き出しを行いません。
+        guard cropMode == .book else { return }
         // アイテムがない場合は何もしません
         guard let firstItem = items.first else { return }
         // 処理中のフラグを立てます
@@ -680,6 +852,8 @@ final class ImageStore: ObservableObject {
 
     // 現在表示されている（選択されている）画像だけを切り抜いて保存する処理です
     func executeCropSelected(folderName: String, fileNameBase: String) {
+        // モック用の透過マスクを実装するまでは書き出しを行いません。
+        guard cropMode == .book else { return }
         // 選択されているアイテムを取得します
         guard let selectedID = selectedID,
               let item = items.first(where: { $0.id == selectedID }) else { return }

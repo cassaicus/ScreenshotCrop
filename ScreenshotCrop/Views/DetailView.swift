@@ -15,6 +15,7 @@ struct DetailView: View {
     @GestureState private var magnifyBy: CGFloat = 1.0
     // 読み込まれたフルサイズ画像を保持する状態変数です
     @State private var fullImage: NSImage?
+    @State private var loadedImageID: UUID?
     // 切り抜き枠の点線アニメーション用の位相状態です
     @State private var dashPhase: CGFloat = 0
     // リサイズ時の一時的な座標オフセットを保持します
@@ -64,6 +65,17 @@ struct DetailView: View {
         store.items.first { $0.id == store.selectedID }
     }
 
+    private var mockupPreviewPoints: [CGPoint]? {
+        guard store.cropMode == .mockup, !store.isScreenshotMode,
+              store.isShowingMockupTransparencyPreview,
+              store.mockupContourImageID == loadedImageID,
+              loadedImageID == store.selectedID,
+              let result = store.mockupContours,
+              let index = store.selectedMockupBodyCandidate,
+              result.contours.indices.contains(index) else { return nil }
+        return result.contours[index]
+    }
+
     // ビューの階層構造を定義します
     var body: some View {
         // ビューのサイズを取得するためにGeometryReaderを使用します
@@ -77,13 +89,26 @@ struct DetailView: View {
             // 条件によって表示を切り替えるGroupです
             Group {
                 // フルサイズ画像またはヒートマップ画像が読み込まれている場合に表示します
-            if let image = store.isHeatmapMode ? store.heatmapImage : fullImage {
+            if let image = (store.cropMode == .book && store.isHeatmapMode) ? store.heatmapImage : fullImage {
                     // 画像を表示します
                     Image(nsImage: image)
                         // サイズ変更を可能にします
                         .resizable()
                         // アスペクト比を維持してフィットさせます
                         .scaledToFit()
+                        .mask {
+                            if let points = mockupPreviewPoints {
+                                MockupContourShape(contours: [points])
+                                    .fill(Color.white, style: FillStyle(antialiased: true))
+                            } else {
+                                Rectangle()
+                            }
+                        }
+                        .background {
+                            if mockupPreviewPoints != nil {
+                                MockupTransparencyBackground(style: store.mockupPreviewBackground)
+                            }
+                        }
                         // 画像が表示された際やサイズが変わった際に、その表示サイズをストアに保存します
                         // これにより、実際の画像サイズとの比率を計算して正確な切り抜きを可能にします
                         .background(
@@ -131,6 +156,20 @@ struct DetailView: View {
                         )
                         .overlay(alignment: .topLeading) {
                             ZStack(alignment: .topLeading) {
+                                if store.cropMode == .mockup, !store.isScreenshotMode,
+                                   mockupPreviewPoints == nil,
+                                   store.mockupContourImageID == loadedImageID,
+                                   let result = store.mockupContours {
+                                    ZStack {
+                                        if let index = store.selectedMockupBodyCandidate,
+                                           result.contours.indices.contains(index) {
+                                            MockupContourOverlay(contours: [result.contours[index]],
+                                                                 lineWidth: 2.5 / (scale * magnifyBy), color: .green)
+                                        }
+                                    }
+                                    .frame(width: store.displayedImageSize.width, height: store.displayedImageSize.height)
+                                    .allowsHitTesting(false)
+                                }
                                 // 切り抜き枠の表示フラグをオパシティとヒットテストで制御します
                                 Group {
                                     // 1つ目の切り抜き枠を描画します
@@ -141,11 +180,11 @@ struct DetailView: View {
                                         cropBoxView(rect: $store.cropRect2, initialRect: $initialCropRect2, label: store.isJapaneseStyle ? "1" : "2", isFirst: false)
                                     }
                                 }
-                                .opacity(store.isShowingCropBox ? 1.0 : 0.0)
-                                .allowsHitTesting(store.isShowingCropBox)
+                                .opacity(store.cropMode == .book && store.isShowingCropBox ? 1.0 : 0.0)
+                                .allowsHitTesting(store.cropMode == .book && store.isShowingCropBox)
 
                                 // 2D背景分析の結果（赤い囲い）をオーバーレイ表示します
-                                if store.isHeatmapMode {
+                                if store.cropMode == .book && store.isHeatmapMode {
                                     if let maskImage = store.backgroundMaskImage {
                                         Image(nsImage: maskImage)
                                             .resizable()
@@ -155,7 +194,7 @@ struct DetailView: View {
                                 }
 
                                 // 高さ合わせのアシスト線を描画します
-                                if let _ = fullImage {
+                                if store.cropMode == .book, let _ = fullImage {
                                     // 枠の枠線と同じように、スケールにかかわらず一定の太さ（1.0ポイント）に見えるように調整します
                                     // ここでは、ZStackが画像と同じ座標系（左上原点、スケール適用前）にあるため、
                                     // 単純に画像上の座標 y を offset に指定すれば、後の .scaleEffect(currentScale) で正しく配置されます
@@ -427,7 +466,7 @@ struct DetailView: View {
                             }
 
                             // 自動エリア設定の境界線（赤・青の境界）への吸着
-                            if store.isHeatmapMode {
+                            if store.cropMode == .book && store.isHeatmapMode {
                                 let pixelToPointScale = store.displayedImageSize.width / store.currentImagePixelSize.width
                                 let threshold: CGFloat = 5.0 / currentScale
                                 for pxX in store.detectedBoundaries {
@@ -673,7 +712,7 @@ struct DetailView: View {
                             }
 
                             // 自動エリア設定の境界線（赤・青の境界）への吸着
-                            if store.isHeatmapMode {
+                            if store.cropMode == .book && store.isHeatmapMode {
                                 let pixelToPointScale = store.displayedImageSize.width / store.currentImagePixelSize.width
                                 let threshold: CGFloat = 5.0 / currentScale
                                 for pxX in store.detectedBoundaries {
@@ -724,7 +763,7 @@ struct DetailView: View {
                             }
 
                             // 自動エリア設定の境界線（赤・青の境界）への吸着
-                            if store.isHeatmapMode {
+                            if store.cropMode == .book && store.isHeatmapMode {
                                 let pixelToPointScale = store.displayedImageSize.width / store.currentImagePixelSize.width
                                 let threshold: CGFloat = 5.0 / currentScale
                                 let currentRightX = initialRect.wrappedValue.origin.x + newWidth
@@ -794,7 +833,12 @@ struct DetailView: View {
     // フルサイズ画像を読み込むメソッドです
     private func loadFullImage() {
         // 選択された画像のURLを取得します。なければ何もしません
-        guard let url = selectedItem?.url else { return }
+        guard let item = selectedItem else {
+            fullImage = nil
+            loadedImageID = nil
+            return
+        }
+        let url = item.url
 
         // 優先度の高いバックグラウンドスレッドで画像を読み込みます
         DispatchQueue.global(qos: .userInitiated).async {
@@ -804,7 +848,9 @@ struct DetailView: View {
             // メインスレッドで状態を更新します
             DispatchQueue.main.async {
                 // 読み込まれた画像をセットします
+                guard self.store.selectedID == item.id else { return }
                 self.fullImage = image
+                self.loadedImageID = item.id
 
                 // 読み込まれた画像の実ピクセルサイズを取得してストアに保存します
                 if let cgImage = image?.cgImage(forProposedRect: nil, context: nil, hints: nil) {
@@ -822,5 +868,63 @@ struct ViewSizeKey: PreferenceKey {
     // 複数の値を統合する際の処理を定義します。ここでは新しい値を採用します
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
         value = nextValue()
+    }
+}
+
+/// Vision uses a lower-left origin; SwiftUI uses a top-left origin.
+private struct MockupContourOverlay: View {
+    let contours: [[CGPoint]]
+    let lineWidth: CGFloat
+    var color: Color = .cyan
+
+    var body: some View {
+        MockupContourShape(contours: contours)
+            .stroke(color, lineWidth: lineWidth)
+    }
+}
+
+/// Shared by the outline and the preview mask to keep their coordinates identical.
+struct MockupContourShape: Shape {
+    let contours: [[CGPoint]]
+
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            for points in contours {
+                guard let first = points.first else { continue }
+                path.move(to: CGPoint(x: rect.minX + first.x * rect.width,
+                                      y: rect.minY + (1 - first.y) * rect.height))
+                for point in points.dropFirst() {
+                    path.addLine(to: CGPoint(x: rect.minX + point.x * rect.width,
+                                             y: rect.minY + (1 - point.y) * rect.height))
+                }
+                path.closeSubpath()
+            }
+        }
+    }
+}
+
+private struct MockupTransparencyBackground: View {
+    let style: ImageStore.MockupPreviewBackground
+
+    var body: some View {
+        switch style {
+        case .white:
+            Color.white
+        case .black:
+            Color.black
+        case .checkerboard:
+            Canvas { context, size in
+                let cell: CGFloat = 12
+                context.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color(white: 0.9)))
+                for row in 0..<Int(ceil(size.height / cell)) {
+                    for column in 0..<Int(ceil(size.width / cell)) where (row + column).isMultiple(of: 2) {
+                        let square = CGRect(x: CGFloat(column) * cell, y: CGFloat(row) * cell,
+                                            width: cell, height: cell)
+                        context.fill(Path(square), with: .color(Color(white: 0.7)))
+                    }
+                }
+            }
+            .clipped()
+        }
     }
 }
