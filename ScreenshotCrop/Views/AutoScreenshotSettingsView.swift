@@ -65,7 +65,7 @@ struct AutoScreenshotSettingsView: View {
                 HStack {
                     Slider(value: $manager.autoCaptureThreshold, in: 0.0...1.0)
                         .disabled(manager.isAutoCapturing)
-                    Text("\(Int(manager.autoCaptureThreshold * 100))%")
+                    Text(manager.autoCaptureThreshold, format: .percent.precision(.fractionLength(0)))
                         .monospacedDigit()
                         .frame(width: 40)
                 }

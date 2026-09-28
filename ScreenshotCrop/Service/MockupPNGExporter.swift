@@ -28,7 +28,7 @@ enum MockupPNGExporter {
         progress: @Sendable (Int) async -> Void
     ) async throws -> MockupBatchResult {
         let expectedSize = try orientedSize(url: referenceURL)
-        var result = MockupBatchResult()
+        var result = await MockupBatchResult()
         var nextNumber = 1
         for (index, url) in urls.enumerated() {
             do {

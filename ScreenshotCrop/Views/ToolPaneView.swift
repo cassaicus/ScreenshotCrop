@@ -383,7 +383,7 @@ struct ToolPaneView: View {
                                 HStack {
                                     Text("JPEG Quality:")
                                     Spacer()
-                                    Text("\(Int(store.jpgQuality * 100))%")
+                                    Text(store.jpgQuality, format: .percent.precision(.fractionLength(0)))
                                         .monospacedDigit()
                                 }
                                 .font(.caption)
@@ -885,5 +885,4 @@ struct ToolPaneView: View {
     }
 
 }
-
 

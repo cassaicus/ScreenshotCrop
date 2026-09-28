@@ -67,9 +67,6 @@
     "%lld. " : {
       "shouldTranslate" : false
     },
-    "%lld%%" : {
-      "shouldTranslate" : false
-    },
     "←" : {
       "shouldTranslate" : false
     },
@@ -126,23 +123,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "自動モード"
-          }
-        }
-      }
-    },
-    "Automatic Pivot" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatic Pivot"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動"
           }
         }
       }
@@ -239,23 +219,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本の切り抜きモード"
-          }
-        }
-      }
-    },
-    "Brighter" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Brighter"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "明部寄り"
           }
         }
       }
@@ -414,40 +377,6 @@
         }
       }
     },
-    "Contour detection test: inspect the detected outlines before implementing cutout selection." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contour detection test: inspect the detected outlines before implementing cutout selection."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "輪郭検出のテストです。画像上に検出した輪郭を表示します。"
-          }
-        }
-      }
-    },
-    "Contrast Pivot" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contrast Pivot"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コントラスト基準"
-          }
-        }
-      }
-    },
     "Contrast: %.1f" : {
       "localizations" : {
         "en" : {
@@ -512,23 +441,6 @@
         }
       }
     },
-    "Cyan lines show detected contours, not a confirmed cutout area." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cyan lines show detected contours, not a confirmed cutout area."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "水色の線は検出した輪郭です。切り抜き範囲はまだ確定していません。"
-          }
-        }
-      }
-    },
     "Dark Object on Light Background" : {
       "localizations" : {
         "en" : {
@@ -541,23 +453,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "明るい背景に暗い対象"
-          }
-        }
-      }
-    },
-    "Darker" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Darker"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "暗部寄り"
           }
         }
       }
@@ -826,23 +721,6 @@
         }
       }
     },
-    "Green marks a body outline candidate. Check all edges and side buttons; it is not a confirmed cutout." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Green marks a body outline candidate. Check all edges and side buttons; it is not a confirmed cutout."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "緑色が本体外周の候補です。全周と側面ボタンを確認してください。切り抜き範囲は未確定です。"
-          }
-        }
-      }
-    },
     "Hide Floating Panel" : {
       "localizations" : {
         "en" : {
@@ -948,23 +826,6 @@
         }
       }
     },
-    "Keep the iPhone body and side buttons, and remove the surrounding background." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keep the iPhone body and side buttons, and remove the surrounding background."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iPhoneの本体と側面ボタンを残し、周囲の背景を透明にします。"
-          }
-        }
-      }
-    },
     "Key Input Direction" : {
       "localizations" : {
         "ja" : {
@@ -1001,57 +862,6 @@
         }
       }
     },
-    "Manual Pivot" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manual Pivot"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "手動"
-          }
-        }
-      }
-    },
-    "Mockup Area Detection" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mockup Area Detection"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モックのエリア指定"
-          }
-        }
-      }
-    },
-    "Mockup cropping and export are not available yet." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mockup cropping and export are not available yet."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モックの切り抜き・保存はまだ利用できません。"
-          }
-        }
-      }
-    },
     "Mockup Cutout" : {
       "localizations" : {
         "en" : {
@@ -1080,40 +890,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "モックは背景の透明度を保つため、PNGで保存します。"
-          }
-        }
-      }
-    },
-    "Mockup detection and export are coming soon." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mockup detection and export are coming soon."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モックの自動エリア指定・切り抜きは準備中です。"
-          }
-        }
-      }
-    },
-    "Mockup detection and transparent export are not available yet. You can review the export settings and workflow." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mockup detection and transparent export are not available yet. You can review the export settings and workflow."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モックの自動エリア指定と透過保存は、まだ利用できません。保存設定と操作の流れを確認できます。"
           }
         }
       }
@@ -1176,23 +952,6 @@
         }
       }
     },
-    "OK" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        }
-      }
-    },
     "Open Folder" : {
       "localizations" : {
         "en" : {
@@ -1205,23 +964,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フォルダを開く"
-          }
-        }
-      }
-    },
-    "Outermost Contours Only" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Outermost Contours Only"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最外周の輪郭のみ"
           }
         }
       }
@@ -1274,23 +1016,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ページ２:"
-          }
-        }
-      }
-    },
-    "Pivot Value" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pivot Value"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "基準値"
           }
         }
       }
@@ -1350,23 +1075,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "PNGを保存しました"
-          }
-        }
-      }
-    },
-    "Press Specify Area again to apply changed settings." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Press Specify Area again to apply changed settings."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定変更後は「エリア指定」を押して再検出してください。"
           }
         }
       }
@@ -1605,40 +1313,6 @@
         }
       }
     },
-    "Show Body Candidate Only" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Body Candidate Only"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "本体候補だけを表示"
-          }
-        }
-      }
-    },
-    "Show Contours" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show Contours"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "輪郭を表示"
-          }
-        }
-      }
-    },
     "Show Floating Panel" : {
       "localizations" : {
         "en" : {
@@ -1661,23 +1335,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ファインダーを開く"
-          }
-        }
-      }
-    },
-    "Single-image PNG export is available in Step 4. Batch export is not available yet." : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Single-image PNG export is available in Step 4. Batch export is not available yet."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ステップ4で1枚を透過PNG保存できます。一括保存はまだ利用できません。"
           }
         }
       }
