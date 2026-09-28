@@ -747,18 +747,18 @@
         }
       }
     },
-    "iPhone Mockup" : {
+    "iPhone / iPad Mockup" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iPhone Mockup"
+            "value" : "iPhone / iPad Mockup"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iPhoneモック"
+            "value" : "iPhone / iPadモック"
           }
         }
       }
@@ -1079,18 +1079,18 @@
         }
       }
     },
-    "Press Specify Area to detect the iPhone outline. If the outline is incorrect, open Detection Settings and adjust the contrast." : {
+    "Press Specify Area to detect the iPhone or iPad outline. If the outline is incorrect, open Detection Settings and adjust the contrast." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Press Specify Area to detect the iPhone outline. If the outline is incorrect, open Detection Settings and adjust the contrast."
+            "value" : "Press Specify Area to detect the iPhone or iPad outline. If the outline is incorrect, open Detection Settings and adjust the contrast."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "「エリア指定」でiPhoneの輪郭を検出します。うまく合わない場合は「検出設定」を開き、コントラストを調整してください。"
+            "value" : "「エリア指定」でiPhone / iPadの輪郭を検出します。うまく合わない場合は「検出設定」を開き、コントラストを調整してください。"
           }
         }
       }
@@ -1475,18 +1475,18 @@
         }
       }
     },
-    "The selected outline is shared by all images. Keep the iPhone position and scale identical. Different image sizes are skipped." : {
+    "The selected outline is shared by all images. Keep the device position and scale identical. Different image sizes are skipped." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The selected outline is shared by all images. Keep the iPhone position and scale identical. Different image sizes are skipped."
+            "value" : "The selected outline is shared by all images. Keep the device position and scale identical. Different image sizes are skipped."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選択した輪郭を全画像に共通適用します。iPhoneの位置・倍率を揃えてください。画像サイズが異なるものはスキップします。"
+            "value" : "選択した輪郭を全画像に共通適用します。端末の位置・倍率を揃えてください。画像サイズが異なるものはスキップします。"
           }
         }
       }

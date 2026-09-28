@@ -54,7 +54,7 @@ enum MockupContourDetector {
     }
 
     /// A geometric shortlist, not semantic recognition or a confirmed cutout.
-    /// Prefer the largest phone-shaped silhouette, retaining the original points
+    /// Prefer the largest phone- or tablet-shaped silhouette, retaining the original points
     /// so small protrusions such as side buttons are not simplified away.
     nonisolated static func bodyCandidates(in contours: [[CGPoint]], imageSize: CGSize) -> [Int] {
         guard imageSize.width > 0, imageSize.height > 0 else { return [] }
@@ -71,7 +71,8 @@ enum MockupContourDetector {
             let pixelWidth = width * imageSize.width
             let pixelHeight = height * imageSize.height
             let aspect = min(pixelWidth, pixelHeight) / max(pixelWidth, pixelHeight)
-            guard (0.35...0.65).contains(aspect) else { continue }
+            // Include wider iPad bodies in either orientation while rejecting square controls.
+            guard (0.35...0.85).contains(aspect) else { continue }
             var twiceArea: CGFloat = 0
             for i in points.indices {
                 let next = points[(i + 1) % points.count]

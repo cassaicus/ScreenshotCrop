@@ -616,7 +616,7 @@ struct ToolPaneView: View {
     }
 
     private var mockupAvailabilityNotice: some View {
-        Label("The selected outline is shared by all images. Keep the iPhone position and scale identical. Different image sizes are skipped.", systemImage: "info.circle")
+        Label("The selected outline is shared by all images. Keep the device position and scale identical. Different image sizes are skipped.", systemImage: "info.circle")
             .font(.caption)
             .foregroundColor(.secondary)
             .fixedSize(horizontal: false, vertical: true)
@@ -624,9 +624,9 @@ struct ToolPaneView: View {
 
     private var mockupAreaControls: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("iPhone Mockup", systemImage: "iphone")
+            Label("iPhone / iPad Mockup", systemImage: "iphone")
                 .font(.headline)
-            Text("Press Specify Area to detect the iPhone outline. If the outline is incorrect, open Detection Settings and adjust the contrast.")
+            Text("Press Specify Area to detect the iPhone or iPad outline. If the outline is incorrect, open Detection Settings and adjust the contrast.")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
