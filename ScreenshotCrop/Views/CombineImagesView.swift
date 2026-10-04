@@ -3,6 +3,7 @@ import SwiftUI
 
 // 画像を結合するためのビューです
 struct CombineImagesView: View {
+    let onCombineCompleted: () -> Void
     // 環境オブジェクトからImageStoreを取得します
     @EnvironmentObject var store: ImageStore
     // ビューを閉じるためのアクションです
@@ -113,6 +114,7 @@ struct CombineImagesView: View {
                     Task {
                         store.shouldDeleteOriginalsAfterCombine = shouldDeleteOriginals
                         await store.combineImages(pairs: pairs, isJapaneseStyle: isJapaneseStyle)
+                        onCombineCompleted()
                         // 完了後にビューを閉じます
                         dismiss()
                     }
@@ -120,7 +122,7 @@ struct CombineImagesView: View {
                 // 目立つスタイルを設定します
                 .buttonStyle(.borderedProminent)
                 // 1つも選択されていない場合は無効化します
-                .disabled(!pairs.contains { $0.isSelected })
+                .disabled(store.isProcessing || !pairs.contains { $0.isSelected })
             }
             .padding()
         }

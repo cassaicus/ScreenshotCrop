@@ -250,6 +250,14 @@ final class ImageStore: ObservableObject {
     // 直前の書き出しが見開きモードだったかどうかのフラグです
     @Published var wasLastExportSpreadMode: Bool = false
 
+    @Published private(set) var conversionFolderURL: URL?
+    @Published private(set) var pngConversionCount = 0
+    @Published var conversionJPGQuality = 0.8
+    @Published private(set) var isConvertingImages = false
+    @Published private(set) var convertedImageCount = 0
+    @Published private(set) var imageConversionFailures: [String] = []
+    private var loadedFolderURL: URL?
+
     // --- スクリーンショット機能用 ---
     // スクリーンショットモード中かどうかのフラグです
     @Published var isScreenshotMode: Bool = false
@@ -280,6 +288,18 @@ final class ImageStore: ObservableObject {
 
     // フローティングパネルのインスタンス
     private var floatingPanel: FloatingPanel?
+    private var isRetired = false
+
+    /// Stop the previous session without deleting any saved files.
+    func prepareForReset() {
+        isRetired = true
+        autoManager.stopAutoCapture()
+        hideFloatingPanel()
+        clearMockupContours()
+        cancellables.removeAll()
+        isShowingScreenshotCleanupSheet = false
+        isScreenshotMode = false
+    }
 
     // ストアを初期化します
     init() {
@@ -321,6 +341,7 @@ final class ImageStore: ObservableObject {
     // スクリーンショットモードを更新し、関連する状態をリセットします
     func updateScreenshotMode(_ isScreenshot: Bool) {
         Task { @MainActor in
+            guard !isRetired else { return }
             isScreenshotMode = isScreenshot
             if isScreenshot {
                 isHeatmapMode = false
@@ -401,7 +422,7 @@ final class ImageStore: ObservableObject {
     // autoApply が true の場合、解析完了後に自動的に枠を吸着させます
     func applyAutomaticAreaSetting(autoApply: Bool = false) {
         // 画像がない、またはサイズ情報がない場合は中断します
-        guard !items.isEmpty, displayedImageSize.width > 0, currentImagePixelSize.width > 0 else { return }
+        guard !isRetired, !items.isEmpty, displayedImageSize.width > 0, currentImagePixelSize.width > 0 else { return }
 
         // 背景分析中フラグを立てます
         isAnalyzingBackground = true
@@ -467,6 +488,7 @@ final class ImageStore: ObservableObject {
 
             await MainActor.run {
                 if let (result, boundaries) = analysisResult {
+                    guard !self.isRetired else { return }
                     self.backgroundAnalysis = result
                     self.backgroundMaskImage = self.generateBackgroundMaskImage(mask: result, width: width, height: height)
                     self.detectedBoundaries = boundaries
@@ -695,6 +717,68 @@ final class ImageStore: ObservableObject {
         }
     }
 
+    // 出力先（または読み込んだCroppedフォルダ）のPNG画像を確認します。
+    func refreshImageConversionAvailability(folderName: String) {
+        guard !isConvertingImages else { return }
+        let folder = lastOutputFolderURL ?? loadedFolderURL.map {
+            ($0.lastPathComponent == folderName || $0.lastPathComponent == "Cropped")
+                ? $0 : $0.appendingPathComponent(folderName, isDirectory: true)
+        }
+        if conversionFolderURL != folder {
+            convertedImageCount = 0
+            imageConversionFailures = []
+        }
+        conversionFolderURL = folder
+        pngConversionCount = folder.flatMap { try? PNGToJPEGConverter.pngFiles(in: $0).count } ?? 0
+    }
+
+    func convertCroppedPNGToJPEG(folderName: String) {
+        guard !isProcessing, !isAnalyzingBackground else { return }
+        refreshImageConversionAvailability(folderName: folderName)
+        guard let folder = conversionFolderURL else { return }
+        let urls: [URL]
+        do {
+            urls = try PNGToJPEGConverter.pngFiles(in: folder)
+        } catch {
+            imageConversionFailures = [error.localizedDescription]
+            return
+        }
+        guard !urls.isEmpty else { return }
+        let quality = conversionJPGQuality
+        isProcessing = true
+        isConvertingImages = true
+        processedCount = 0
+        totalCount = urls.count
+        convertedImageCount = 0
+        imageConversionFailures = []
+
+        Task {
+            for url in urls {
+                do {
+                    let output = try await Task.detached(priority: .userInitiated) {
+                        try autoreleasepool { try PNGToJPEGConverter.convert(url, quality: quality) }
+                    }.value
+                    ThumbnailCache.shared.removeThumbnail(for: url)
+                    // Keep the sidebar valid when Cropped itself is open.
+                    if let index = items.firstIndex(where: { $0.url == url }) {
+                        let wasSelected = selectedID == items[index].id
+                        items[index] = ImageItem(url: output)
+                        if wasSelected { selectedID = items[index].id }
+                    }
+                    if lastMockupOutputURL == url { lastMockupOutputURL = nil }
+                    convertedImageCount += 1
+                } catch {
+                    imageConversionFailures.append("\(url.lastPathComponent): \(error.localizedDescription)")
+                }
+                processedCount += 1
+            }
+            isConvertingImages = false
+            isProcessing = false
+            refreshImageConversionAvailability(folderName: folderName)
+            refreshCombineAvailability()
+        }
+    }
+
     // フォルダ選択パネルを開き、選択されたフォルダから画像を読み込みます
     func pickFolder() {
         // フォルダを開くためのパネルを作成します
@@ -715,6 +799,7 @@ final class ImageStore: ObservableObject {
 
     // 指定されたフォルダURLから画像を非同期で読み込みます
     private func loadImages(from folderURL: URL) {
+        guard !isRetired else { return }
         // メインスレッドから切り離されたタスクで実行します
         Task.detached {
             // ファイルマネージャーのインスタンスを取得します
@@ -768,7 +853,9 @@ final class ImageStore: ObservableObject {
             // メインスレッドで結果をプロパティに反映させます
             await MainActor.run {
                 // 画像アイテムリストを更新します
+                guard !self.isRetired else { return }
                 self.items = items
+                self.loadedFolderURL = folderURL
                 // サイズ不一致フラグを更新します
                 self.hasSizeMismatch = sizeMismatchResult
                 // 結合機能を無効化します（新しいフォルダを読み込んだため）
@@ -1120,6 +1207,7 @@ final class ImageStore: ObservableObject {
 
     // 外部から画像を保存するためのメソッドです（AutoScreenshotManagerなどで使用）
     func saveImageExternal(_ image: NSImage, to url: URL, format: ExportFormat, quality: Double) {
+        guard !isRetired else { return }
         saveImage(image, to: url, format: format, quality: quality)
     }
 
@@ -1148,7 +1236,7 @@ final class ImageStore: ObservableObject {
 
     // 撮影した画像を保存し、リストに追加します
     private func saveCapturedImage(_ image: NSImage) {
-        guard let folderURL = screenshotFolderURL else { return }
+        guard !isRetired, let folderURL = screenshotFolderURL else { return }
 
         let dateFormater = DateFormatter()
         dateFormater.dateFormat = "yyyyMMdd_HHmmss_SSS"
@@ -1238,6 +1326,7 @@ final class ImageStore: ObservableObject {
 
     // フローティングパネルからスクリーンショットを実行します
     func triggerFloatingScreenshot() {
+        guard !isRetired else { return }
         // 撮影前に権限をチェックします
         checkScreenCapturePermission()
 
@@ -1249,6 +1338,7 @@ final class ImageStore: ObservableObject {
 
         Task {
             // 1. パネル自体が写り込まないように一時的に透明化します
+            guard !isRetired else { return }
             let originalAlpha = floatingPanel?.alphaValue ?? 1.0
             await MainActor.run {
                 floatingPanel?.alphaValue = 0.0
@@ -1256,6 +1346,7 @@ final class ImageStore: ObservableObject {
 
             // 2. パネルが完全に消えるまで少しだけ待ちます（描画反映の遅延対策）
             try? await Task.sleep(nanoseconds: 100_000_000) // 0.1秒
+            guard !isRetired else { return }
 
             do {
                 // 3. メインディスプレイのキャプチャを実行

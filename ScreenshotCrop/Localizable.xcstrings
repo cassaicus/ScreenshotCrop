@@ -1548,6 +1548,118 @@
           }
         }
       }
+    },
+    "Image Conversion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Image Conversion"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像変換"
+          }
+        }
+      }
+    },
+    "Convert PNG to JPG" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convert PNG to JPG"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNGをJPGに変換"
+          }
+        }
+      }
+    },
+    "PNG files: %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNG files: %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNG画像: %lld枚"
+          }
+        }
+      }
+    },
+    "Converted: %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converted: %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変換済み: %lld枚"
+          }
+        }
+      }
+    },
+    "Successfully converted PNG files are deleted. Transparent areas become white." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successfully converted PNG files are deleted. Transparent areas become white."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変換に成功したPNG画像は削除されます。透明部分は白色になります。"
+          }
+        }
+      }
+    },
+    "Clear Work Data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Work Data"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作業データをクリア"
+          }
+        }
+      }
+    },
+    "Saved files are kept. Capture interval and stop condition are retained." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved files are kept. Capture interval and stop condition are retained."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存済みファイルは残ります。撮影間隔と停止条件は保持されます。"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

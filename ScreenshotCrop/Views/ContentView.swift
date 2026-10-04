@@ -5,7 +5,8 @@ import SwiftUI
 struct ContentView: View {
 
     // 画像データを管理する状態オブジェクトを作成します
-    @StateObject private var store = ImageStore()
+    @StateObject private var session = WorkSession()
+    private var store: ImageStore { session.store }
     // 画像の拡大縮小率を管理する状態変数です（初期値1.0）
     @State private var imageScale: CGFloat = 1.0
 
@@ -75,12 +76,16 @@ struct ContentView: View {
                 Divider()
                 
                 // 右側のツール操作パネルビューです
-                ToolPaneView()
+                ToolPaneView(clearWorkData: session.clearWorkData)
                     // ImageStoreを環境オブジェクトとして提供します
                     .environmentObject(store)
                     // 幅を250ポイントに固定します
                     .frame(width: 250)
             }
+        }
+        .id(ObjectIdentifier(store))
+        .onChange(of: ObjectIdentifier(store)) { _, _ in
+            imageScale = 1.0
         }
         // ウィンドウが閉じられた（ビューが破棄された）際の処理を定義します
         .onDisappear {

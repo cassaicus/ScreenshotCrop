@@ -5,8 +5,10 @@ import SwiftUI
 
 // 右側に表示されるツール操作パネルのビューです
 struct ToolPaneView: View {
+    let clearWorkData: () -> Void
     // 環境オブジェクトからImageStoreを取得します
     @EnvironmentObject var store: ImageStore
+    @Environment(\.scenePhase) private var scenePhase
     // 保存先のフォルダ名を管理する状態変数です
     @State private var folderName: String = "Cropped"
     // 保存するファイル名を管理する状態変数です
@@ -64,8 +66,30 @@ struct ToolPaneView: View {
             }
         }
         .padding()
+        .onAppear { store.refreshImageConversionAvailability(folderName: folderName) }
+        .onChange(of: folderName) { _, _ in
+            store.refreshImageConversionAvailability(folderName: folderName)
+        }
+        .onChange(of: store.items) { _, _ in
+            store.refreshImageConversionAvailability(folderName: folderName)
+        }
+        .onChange(of: store.lastOutputFolderURL) { _, _ in
+            store.refreshImageConversionAvailability(folderName: folderName)
+        }
+        .onChange(of: store.isProcessing) { _, processing in
+            if !processing { store.refreshImageConversionAvailability(folderName: folderName) }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { store.refreshImageConversionAvailability(folderName: folderName) }
+        }
+        .onChange(of: isShowingCombineSheet) { _, showing in
+            if !showing { store.refreshImageConversionAvailability(folderName: folderName) }
+        }
         .sheet(isPresented: $isShowingCombineSheet) {
-            CombineImagesView()
+            CombineImagesView(onCombineCompleted: {
+                store.refreshImageConversionAvailability(folderName: folderName)
+                withAnimation { currentStep = 6 }
+            })
                 .environmentObject(store)
         }
         .sheet(isPresented: $store.isShowingScreenshotCleanupSheet) {
@@ -574,24 +598,98 @@ struct ToolPaneView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    // Finderで開くボタン
-                    if !isMockupMode, let url = store.lastOutputFolderURL {
-                        Button(action: {
-                            NSWorkspace.shared.activateFileViewerSelecting([url])
-                        }) {
-                            HStack {
-                                Image(systemName: "folder")
-                                Text("Show in Finder")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
-                        }
-                        .buttonStyle(.bordered)
-                    }
                 }
                 .padding(.vertical, 8)
             }
+            Divider()
+            stepHeader(title: "Image Conversion", step: 6)
+            if currentStep == 6 {
+                imageConversionSection
+            }
         }
+    }
+
+    private var imageConversionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if let folder = store.conversionFolderURL {
+                Text(folder.lastPathComponent)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .help(folder.path)
+            }
+            HStack {
+                Text("JPEG Quality:")
+                Spacer()
+                Text(store.conversionJPGQuality, format: .percent.precision(.fractionLength(0)))
+                    .monospacedDigit()
+            }
+            .font(.caption)
+            Slider(value: $store.conversionJPGQuality, in: 0.1...1.0, step: 0.01) {
+                Text("JPEG Quality:")
+            }
+            .disabled(store.isProcessing)
+
+            Text("PNG files: \(store.pngConversionCount)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            Button {
+                store.convertCroppedPNGToJPEG(folderName: folderName)
+            } label: {
+                Label("Convert PNG to JPG", systemImage: "arrow.triangle.2.circlepath")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(store.pngConversionCount == 0 || store.isProcessing || store.isAnalyzingBackground)
+
+            Text("Successfully converted PNG files are deleted. Transparent areas become white.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            if store.isConvertingImages {
+                ProgressView(value: Double(store.processedCount), total: Double(store.totalCount))
+                Text("\(store.processedCount) / \(store.totalCount)")
+                    .font(.caption)
+                    .monospacedDigit()
+            } else if store.convertedImageCount > 0 {
+                Text("Converted: \(store.convertedImageCount)")
+                    .font(.caption)
+                    .foregroundColor(.green)
+            }
+            if !store.imageConversionFailures.isEmpty {
+                DisclosureGroup("Failed Files") {
+                    Text(store.imageConversionFailures.joined(separator: "\n"))
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                        .textSelection(.enabled)
+                }
+            }
+            if let folder = store.conversionFolderURL {
+                Button {
+                    NSWorkspace.shared.activateFileViewerSelecting([folder])
+                } label: {
+                    Label("Show in Finder", systemImage: "folder")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.bordered)
+            }
+            Button(action: clearWorkData) {
+                Label("Clear Work Data", systemImage: "arrow.counterclockwise")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
+            .buttonStyle(.bordered)
+            .disabled(store.isProcessing)
+            Text("Saved files are kept. Capture interval and stop condition are retained.")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.vertical, 8)
+        .onAppear { store.refreshImageConversionAvailability(folderName: folderName) }
     }
     @ViewBuilder
     private var mockupBatchSummary: some View {

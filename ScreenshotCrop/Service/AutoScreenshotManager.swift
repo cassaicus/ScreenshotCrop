@@ -24,6 +24,8 @@ final class AutoScreenshotManager: ObservableObject {
 
     // ImageStoreへの弱参照を保持します。
     private weak var store: ImageStore?
+    private var captureTask: Task<Void, Never>?
+    private var captureRunID: UUID?
 
     // 初期化時にImageStoreを受け取ります。
     init(store: ImageStore) {
@@ -34,6 +36,8 @@ final class AutoScreenshotManager: ObservableObject {
     func startAutoCapture() {
         guard !isAutoCapturing else { return }
         isAutoCapturing = true
+        let runID = UUID()
+        captureRunID = runID
 
         // 重複検知器をリセットします。
         duplicateDetector.reset()
@@ -41,17 +45,23 @@ final class AutoScreenshotManager: ObservableObject {
         duplicateDetector.setThreshold(autoCaptureThreshold)
 
         // メインアクター上で実行されるタスクを作成します。
-        Task {
+        captureTask = Task {
+            defer {
+                if captureRunID == runID {
+                    isAutoCapturing = false
+                    countdownRemaining = nil
+                    captureRunID = nil
+                    captureTask = nil
+                }
+            }
             // 最初に5秒間待機し、その間1秒ごとにビープ音を鳴らします。
             for i in (1...5).reversed() {
-                if !self.isAutoCapturing {
-                    self.countdownRemaining = nil
-                    return
-                }
+                guard !Task.isCancelled, captureRunID == runID else { return }
                 self.countdownRemaining = i
                 NSSound.beep()
                 try? await Task.sleep(nanoseconds: 1_000_000_000)
             }
+            guard !Task.isCancelled, captureRunID == runID else { return }
             self.countdownRemaining = nil
 
             // 開始時の連番を取得します。
@@ -60,15 +70,18 @@ final class AutoScreenshotManager: ObservableObject {
             // 最大999回まで繰り返します。
             for _ in 0..<999 {
                 // 停止ボタンが押されていたら終了します。
-                if !self.isAutoCapturing { break }
+                guard !Task.isCancelled, captureRunID == runID else { return }
 
                 do {
                     // スクリーンショットを撮影します。
                     let image = try await ScreenshotService.shared.captureMainDisplay()
+                    guard !Task.isCancelled, captureRunID == runID else { return }
 
                     // 重複チェックを実行します。
                     if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
-                        if await duplicateDetector.isDuplicate(cgImage) {
+                        let isDuplicate = await duplicateDetector.isDuplicate(cgImage)
+                        guard !Task.isCancelled, captureRunID == runID else { return }
+                        if isDuplicate {
                             print("Log: 重複が検知されたため自動停止します。")
                             // 停止時にビープ音を鳴らします。
                             NSSound.beep()
@@ -84,7 +97,7 @@ final class AutoScreenshotManager: ObservableObject {
                     break
                 }
 
-                if !self.isAutoCapturing { break }
+                guard !Task.isCancelled, captureRunID == runID else { return }
 
                 // 指定されたキー入力をシミュレートします。
                 let direction = self.autoCaptureDirection
@@ -95,13 +108,14 @@ final class AutoScreenshotManager: ObservableObject {
                 try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
             }
 
-            // 終了後に状態をリセットします。
-            self.isAutoCapturing = false
         }
     }
 
     // 自動キャプチャを停止します。
     func stopAutoCapture() {
+        captureTask?.cancel()
+        captureTask = nil
+        captureRunID = nil
         isAutoCapturing = false
         countdownRemaining = nil
     }
