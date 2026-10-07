@@ -492,7 +492,7 @@ struct ToolPaneView: View {
 
                 // フォルダ内の全ての画像を切りぬく実行ボタンです
                 VStack {
-                    let isProcessAllDisabled = isMockupMode ? !store.canExportSelectedMockup : (store.isProcessing || store.isAnalyzingBackground || !store.isHeatmapMode || !store.isShowingCropBox)
+                    let isProcessAllDisabled = isMockupMode ? !store.canExportSelectedMockup : !store.canExecuteCropAll
 
                     Button(action: {
                         if isMockupMode {
@@ -917,7 +917,7 @@ struct ToolPaneView: View {
         }
 
         // 実行ショートカット (Step 2 から直接実行)
-        if store.isHeatmapMode && store.isShowingCropBox {
+        if store.isShowingCropBox {
             VStack(spacing: 8) {
                 Text("Skip steps 3 & 4 and go to Step 5")
                     .font(.caption2)
@@ -938,7 +938,7 @@ struct ToolPaneView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(.green)
-                .disabled(store.isProcessing)
+                .disabled(!store.canExecuteCropAll)
             }
             .padding(10)
             .background(Color.green.opacity(0.1))

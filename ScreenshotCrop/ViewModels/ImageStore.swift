@@ -883,12 +883,31 @@ final class ImageStore: ObservableObject {
         return CGSize(width: width, height: height)
     }
 
+    // オーバーレイの表示状態に関係なく、切り抜きの準備が整っているかを判定します。
+    var canExecuteCropAll: Bool {
+        guard !isRetired, cropMode == .book, !isScreenshotMode,
+              !isProcessing, !isAnalyzingBackground,
+              !items.isEmpty, isShowingCropBox,
+              displayedImageSize.width.isFinite, displayedImageSize.height.isFinite,
+              displayedImageSize.width > 0, displayedImageSize.height > 0 else { return false }
+
+        let imageBounds = CGRect(origin: .zero, size: displayedImageSize)
+        return getRectsToCrop().allSatisfy { rect in
+            rect.origin.x.isFinite && rect.origin.y.isFinite
+            && rect.width.isFinite && rect.height.isFinite
+            && rect.width > 0 && rect.height > 0
+            && imageBounds.contains(rect)
+        }
+    }
+
     // 全ての画像を切り抜いて一括保存する処理です
     func executeCropAll(folderName: String, fileNameBase: String) {
-        // モック用の透過マスクを実装するまでは書き出しを行いません。
-        guard cropMode == .book else { return }
-        // アイテムがない場合は何もしません
-        guard let firstItem = items.first else { return }
+        guard canExecuteCropAll, let firstItem = items.first else { return }
+        // 処理途中の画像選択や枠・表示サイズの変更に影響されないよう固定します。
+        let itemsToCrop = items
+        let rectsToCrop = getRectsToCrop()
+        let referenceImageSize = displayedImageSize
+        let wasSpreadMode = isSpreadMode
         // 処理中のフラグを立てます
         isProcessing = true
 
@@ -902,7 +921,7 @@ final class ImageStore: ObservableObject {
 
             // 進行状況を初期化します
             await MainActor.run {
-                self.totalCount = items.count
+                self.totalCount = itemsToCrop.count
                 self.processedCount = 0
             }
 
@@ -910,15 +929,12 @@ final class ImageStore: ObservableObject {
             var pageCount = 1
 
             // 全ての画像アイテムに対してループ処理を行います
-            for item in items {
+            for item in itemsToCrop {
                 // 画像を読み込みます。失敗した場合はスキップします
                 guard let image = NSImage(contentsOf: item.url) else { continue }
 
-                // 切り抜きを行う枠の順序を取得します
-                let rectsToCrop = getRectsToCrop()
-
                 // 各枠で切り抜き処理を実行します
-                await processImage(image, rectsToCrop: rectsToCrop, outputFolderURL: outputFolderURL, fileNameBase: fileNameBase, pageCount: &pageCount)
+                await processImage(image, rectsToCrop: rectsToCrop, referenceImageSize: referenceImageSize, outputFolderURL: outputFolderURL, fileNameBase: fileNameBase, pageCount: &pageCount)
                 
                 // 処理済み件数を更新します
                 await MainActor.run {
@@ -930,7 +946,7 @@ final class ImageStore: ObservableObject {
             await MainActor.run {
                 self.lastOutputFolderURL = outputFolderURL
                 // 一括書き出し時の見開きモードの状態を記録します
-                self.wasLastExportSpreadMode = self.isSpreadMode
+                self.wasLastExportSpreadMode = wasSpreadMode
                 self.refreshCombineAvailability()
                 isProcessing = false
             }
@@ -945,6 +961,8 @@ final class ImageStore: ObservableObject {
         guard let selectedID = selectedID,
               let item = items.first(where: { $0.id == selectedID }) else { return }
 
+        let rectsToCrop = getRectsToCrop()
+        let referenceImageSize = displayedImageSize
         // 処理中のフラグを立てます
         isProcessing = true
 
@@ -975,11 +993,8 @@ final class ImageStore: ObservableObject {
             let otherBase = fileNameBase + "_other"
             var nextNumber = await findNextOtherNumber(in: outputFolderURL, fileNameBase: otherBase)
             
-            // 切り抜きを行う枠の順序を取得します
-            let rectsToCrop = getRectsToCrop()
-
             // 切り抜き処理を実行します（fileNameBaseに"_other"を付加し、pageCountに検索した連番を渡します）
-            await processImage(image, rectsToCrop: rectsToCrop, outputFolderURL: outputFolderURL, fileNameBase: otherBase, pageCount: &nextNumber)
+            await processImage(image, rectsToCrop: rectsToCrop, referenceImageSize: referenceImageSize, outputFolderURL: outputFolderURL, fileNameBase: otherBase, pageCount: &nextNumber)
 
             // 完了後にフラグを戻します
             await MainActor.run {
@@ -1027,7 +1042,7 @@ final class ImageStore: ObservableObject {
     }
 
     // 1枚の画像に対して指定された複数の枠で切り抜きと保存を行う共通処理です
-    private func processImage(_ image: NSImage, rectsToCrop: [CGRect], outputFolderURL: URL, fileNameBase: String, pageCount: inout Int) async {
+    private func processImage(_ image: NSImage, rectsToCrop: [CGRect], referenceImageSize: CGSize, outputFolderURL: URL, fileNameBase: String, pageCount: inout Int) async {
         // CGImageを取得して、実際のピクセルサイズに基づいた切り抜きを行います
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
 
@@ -1035,9 +1050,9 @@ final class ImageStore: ObservableObject {
         let pixelWidth = CGFloat(cgImage.width)
         let pixelHeight = CGFloat(cgImage.height)
 
-        // UI上の表示サイズと実際のピクセルサイズの比率を計算します
-        let scaleX = displayedImageSize.width > 0 ? pixelWidth / displayedImageSize.width : 1.0
-        let scaleY = displayedImageSize.height > 0 ? pixelHeight / displayedImageSize.height : 1.0
+        // 処理開始時の表示サイズと実際のピクセルサイズの比率を計算します
+        let scaleX = referenceImageSize.width > 0 ? pixelWidth / referenceImageSize.width : 1.0
+        let scaleY = referenceImageSize.height > 0 ? pixelHeight / referenceImageSize.height : 1.0
 
         for rect in rectsToCrop {
             // UI上のポイント座標を、画像の実ピクセル座標に正確に変換します
