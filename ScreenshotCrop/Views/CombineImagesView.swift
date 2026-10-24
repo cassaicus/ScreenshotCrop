@@ -171,8 +171,9 @@ struct CombineImagesView: View {
             for i in stride(from: 0, to: items.count, by: 2) {
                 let first = items[i]
                 let second = (i + 1 < items.count) ? items[i + 1] : nil
-                // 最初は全てチェックをOFFにします
-                newPairs.append(ImageStore.ImagePair(first: first, second: second, isSelected: false))
+                // 表紙統合（mode == .cover）の場合は最初のペア（1ページ目と2ページ目）に最初からチェックを入れます
+                let isSelected = (mode == .cover && i == 0 && second != nil)
+                newPairs.append(ImageStore.ImagePair(first: first, second: second, isSelected: isSelected))
             }
         }
 

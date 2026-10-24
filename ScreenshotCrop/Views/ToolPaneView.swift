@@ -82,8 +82,24 @@ struct ToolPaneView: View {
         .onChange(of: store.lastOutputFolderURL) { _, _ in
             store.refreshImageConversionAvailability(folderName: folderName)
         }
-        .onChange(of: store.isProcessing) { _, processing in
-            if !processing { store.refreshImageConversionAvailability(folderName: folderName) }
+        .onChange(of: store.isProcessing) { wasProcessing, processing in
+            if !processing {
+                store.refreshImageConversionAvailability(folderName: folderName)
+                if wasProcessing && currentStep == 4 {
+                    let hasSuccess = store.lastOutputFolderURL != nil || store.lastMockupOutputURL != nil
+                    let hasMockupError = store.mockupExportError != nil
+                    if hasSuccess && !hasMockupError {
+                        Task {
+                            try? await Task.sleep(nanoseconds: 600_000_000)
+                            await MainActor.run {
+                                withAnimation {
+                                    currentStep = 5
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { store.refreshImageConversionAvailability(folderName: folderName) }
@@ -129,6 +145,20 @@ struct ToolPaneView: View {
                 withAnimation { currentStep = 2 }
             } else if newCount == 0 {
                 withAnimation { currentStep = 1 }
+            }
+        }
+        .onChange(of: store.isConvertingImages) { wasConverting, isConverting in
+            if wasConverting && !isConverting && currentStep == 6 {
+                if store.convertedImageCount > 0 && store.imageConversionFailures.isEmpty {
+                    Task {
+                        try? await Task.sleep(nanoseconds: 600_000_000)
+                        await MainActor.run {
+                            withAnimation {
+                                currentStep = 7
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -551,7 +581,7 @@ struct ToolPaneView: View {
 
 
                 if isMockupMode { mockupBatchSummary }
-                if isMockupMode || store.canCombine {
+                if isMockupMode || store.canCombine || store.lastOutputFolderURL != nil || store.lastMockupOutputURL != nil {
                     HStack {
                         Spacer()
                         Button("Next") {
@@ -903,6 +933,13 @@ struct ToolPaneView: View {
 
                 await MainActor.run {
                     lastExportedZipURL = destZipURL
+                }
+
+                try? await Task.sleep(nanoseconds: 600_000_000)
+                await MainActor.run {
+                    withAnimation {
+                        currentStep = 8
+                    }
                 }
             } catch {
                 await MainActor.run {
