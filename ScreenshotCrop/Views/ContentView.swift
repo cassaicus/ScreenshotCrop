@@ -76,7 +76,10 @@ struct ContentView: View {
                 Divider()
                 
                 // 右側のツール操作パネルビューです
-                ToolPaneView(clearWorkData: session.clearWorkData)
+                ToolPaneView(
+                    clearWorkData: session.clearWorkData,
+                    deleteImageData: session.deleteImageData
+                )
                     // ImageStoreを環境オブジェクトとして提供します
                     .environmentObject(store)
                     // 幅を250ポイントに固定します

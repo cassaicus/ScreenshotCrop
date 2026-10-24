@@ -627,6 +627,147 @@ final class ImageStore: ObservableObject {
         cropRect2 = clamp(rect: cropRect2, within: displayedImageSize)
     }
 
+    // 表示サイズに対する実際のピクセルサイズの倍率
+    var scaleX: CGFloat {
+        displayedImageSize.width > 0 ? currentImagePixelSize.width / displayedImageSize.width : 1.0
+    }
+    var scaleY: CGFloat {
+        displayedImageSize.height > 0 ? currentImagePixelSize.height / displayedImageSize.height : 1.0
+    }
+
+    // 指定された矩形の実際のピクセルサイズを計算します
+    func pixelSize(for rect: CGRect) -> (width: Int, height: Int) {
+        (
+            width: Int(round(rect.width * scaleX)),
+            height: Int(round(rect.height * scaleY))
+        )
+    }
+
+    // 切り抜き枠の幅をピクセル単位で微調整します
+    // page: 1 または 2（単一モード時は 1）
+    // delta: 増減ピクセル数（+1, -1 など）
+    func adjustCropWidth(page: Int, delta: Int) {
+        guard displayedImageSize.width > 0 && currentImagePixelSize.width > 0 else { return }
+
+        let sX = scaleX
+        if isSpreadMode {
+            // 見開きモード
+            // 日本式の場合: Page 1 = cropRect2(右側), Page 2 = cropRect(左側)
+            // 標準の場合: Page 1 = cropRect(左側), Page 2 = cropRect2(右側)
+            let isLeftBox = (page == 1 && !isJapaneseStyle) || (page == 2 && isJapaneseStyle)
+
+            if isLeftBox {
+                // 左側枠 (cropRect)
+                // 内側（右端 maxX）を固定し、外側（左端 origin.x）を伸縮
+                let currentPx = pixelSize(for: cropRect).width
+                let targetPx = max(10, currentPx + delta)
+                let newWidth = CGFloat(targetPx) / sX
+                let rightBoundary = cropRect.maxX
+
+                var newRect = cropRect
+                newRect.size.width = newWidth
+                newRect.origin.x = rightBoundary - newWidth
+
+                if newRect.origin.x < 0 {
+                    newRect.origin.x = 0
+                    newRect.size.width = rightBoundary
+                }
+                cropRect = newRect
+            } else {
+                // 右側枠 (cropRect2)
+                // 内側（左端 origin.x）を固定し、外側（右端 maxX）を伸縮
+                let currentPx = pixelSize(for: cropRect2).width
+                let targetPx = max(10, currentPx + delta)
+                let newWidth = CGFloat(targetPx) / sX
+
+                var newRect = cropRect2
+                newRect.size.width = newWidth
+
+                if newRect.maxX > displayedImageSize.width {
+                    newRect.size.width = max(10, displayedImageSize.width - newRect.origin.x)
+                }
+                cropRect2 = newRect
+            }
+        } else {
+            // 単一モード (cropRect)
+            // 中心 (midX) を維持して左右均等に伸縮
+            let currentPx = pixelSize(for: cropRect).width
+            let maxPx = Int(round(displayedImageSize.width * sX))
+            let targetPx = min(max(10, currentPx + delta), maxPx)
+            let newWidth = CGFloat(targetPx) / sX
+            let diff = newWidth - cropRect.width
+
+            var newRect = cropRect
+            newRect.size.width = newWidth
+            newRect.origin.x = cropRect.origin.x - (diff / 2.0)
+
+            if newRect.origin.x < 0 {
+                newRect.origin.x = 0
+            } else if newRect.maxX > displayedImageSize.width {
+                newRect.origin.x = max(0, displayedImageSize.width - newRect.size.width)
+            }
+            cropRect = newRect
+        }
+
+        clampRectsToImageSize()
+    }
+
+    // 切り抜き枠の高さをピクセル単位で微調整します
+    // page: 1 または 2（単一モード時は 1）
+    // delta: 増減ピクセル数（+1, -1 など）
+    func adjustCropHeight(page: Int, delta: Int) {
+        guard displayedImageSize.height > 0 && currentImagePixelSize.height > 0 else { return }
+
+        let sY = scaleY
+        if isSpreadMode {
+            // 見開きモード
+            let isLeftBox = (page == 1 && !isJapaneseStyle) || (page == 2 && isJapaneseStyle)
+            let targetRect = isLeftBox ? cropRect : cropRect2
+
+            // 見開き時は上端 (origin.y) を固定して下方向へ伸縮
+            let currentPx = pixelSize(for: targetRect).height
+            let maxPx = Int(round(displayedImageSize.height * sY))
+            let targetPx = min(max(10, currentPx + delta), maxPx)
+            let newHeight = CGFloat(targetPx) / sY
+
+            var newRect = targetRect
+            newRect.size.height = newHeight
+
+            // 下端が画像外に出る場合は、上端を引き上げて収める
+            if newRect.maxY > displayedImageSize.height {
+                newRect.origin.y = max(0, displayedImageSize.height - newHeight)
+                newRect.size.height = min(newHeight, displayedImageSize.height - newRect.origin.y)
+            }
+
+            if isLeftBox {
+                cropRect = newRect
+            } else {
+                cropRect2 = newRect
+            }
+        } else {
+            // 単一モード (cropRect)
+            // 中心 (midY) を維持して上下均等に伸縮
+            let currentPx = pixelSize(for: cropRect).height
+            let maxPx = Int(round(displayedImageSize.height * sY))
+            let targetPx = min(max(10, currentPx + delta), maxPx)
+            let newHeight = CGFloat(targetPx) / sY
+            let diff = newHeight - cropRect.height
+
+            var newRect = cropRect
+            newRect.size.height = newHeight
+            newRect.origin.y = cropRect.origin.y - (diff / 2.0)
+
+            if newRect.origin.y < 0 {
+                newRect.origin.y = 0
+            } else if newRect.maxY > displayedImageSize.height {
+                newRect.origin.y = max(0, displayedImageSize.height - newRect.size.height)
+            }
+            cropRect = newRect
+        }
+
+        clampRectsToImageSize()
+    }
+
     // 与えられた矩形を指定されたサイズ内に収めるプライベートメソッドです
     private func clamp(rect: CGRect, within size: CGSize) -> CGRect {
         var newRect = rect
@@ -845,6 +986,101 @@ final class ImageStore: ObservableObject {
             loadedFolderURL = newURL
         }
         return newURL
+    }
+
+    // 現在作業中の対象フォルダURLを取得します（ステップ1で指定したフォルダ）
+    var currentWorkingFolderURL: URL? {
+        if let loaded = loadedFolderURL {
+            return loaded
+        }
+        if let first = items.first {
+            return first.url.deletingLastPathComponent()
+        }
+        if let screenshot = screenshotFolderURL {
+            return screenshot
+        }
+        return nil
+    }
+
+    // ステップ1で指定されたフォルダ内の画像データとクロップフォルダを削除します（ZIPファイルは保護）
+    func deleteWorkingFolderImagesAndCropFolders() {
+        guard let targetFolderURL = currentWorkingFolderURL else { return }
+
+        let fileManager = FileManager.default
+        guard let itemsInFolder = try? fileManager.contentsOfDirectory(
+            at: targetFolderURL,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        ) else { return }
+
+        let imageExtensions = ["png", "jpg", "jpeg"]
+
+        for itemURL in itemsInFolder {
+            let resourceValues = try? itemURL.resourceValues(forKeys: [.isDirectoryKey])
+            let isDirectory = resourceValues?.isDirectory ?? false
+
+            if isDirectory {
+                // ディレクトリ（クロップフォルダなど）の場合
+                // 内部にZIPファイルが存在するか再帰的にチェック
+                if directoryContainsZip(at: itemURL) {
+                    // ZIPが存在する場合はフォルダ自体を削除せず、内部の画像ファイル(PNG/JPG)のみを削除
+                    deleteImagesRecursively(in: itemURL)
+                } else {
+                    // ZIPが存在しない場合はフォルダごと丸ごと削除
+                    try? fileManager.removeItem(at: itemURL)
+                }
+            } else {
+                // ファイルの場合
+                let ext = itemURL.pathExtension.lowercased()
+                if ext == "zip" {
+                    // ZIPファイルは絶対に消さない
+                    continue
+                } else if imageExtensions.contains(ext) {
+                    // PNG, JPGファイルは削除
+                    try? fileManager.removeItem(at: itemURL)
+                }
+            }
+        }
+    }
+
+    // ディレクトリ内にZIPファイルが存在するかを再帰的に確認します
+    private func directoryContainsZip(at directoryURL: URL) -> Bool {
+        let fileManager = FileManager.default
+        guard let enumerator = fileManager.enumerator(
+            at: directoryURL,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) else { return false }
+
+        for case let fileURL as URL in enumerator {
+            if fileURL.pathExtension.lowercased() == "zip" {
+                return true
+            }
+        }
+        return false
+    }
+
+    // ディレクトリ内の画像ファイル（PNG/JPG）を再帰的に削除します
+    private func deleteImagesRecursively(in directoryURL: URL) {
+        let fileManager = FileManager.default
+        let imageExtensions = ["png", "jpg", "jpeg"]
+
+        guard let enumerator = fileManager.enumerator(
+            at: directoryURL,
+            includingPropertiesForKeys: [.isRegularFileKey],
+            options: [.skipsHiddenFiles]
+        ) else { return }
+
+        var urlsToDelete: [URL] = []
+        for case let fileURL as URL in enumerator {
+            if imageExtensions.contains(fileURL.pathExtension.lowercased()) {
+                urlsToDelete.append(fileURL)
+            }
+        }
+
+        for fileURL in urlsToDelete {
+            try? fileManager.removeItem(at: fileURL)
+        }
     }
 
     // フォルダ選択パネルを開き、選択されたフォルダから画像を読み込みます

@@ -10,12 +10,20 @@ final class WorkSession: ObservableObject {
         guard !store.isProcessing else { return }
         let interval = store.autoManager.autoCaptureInterval
         let threshold = store.autoManager.autoCaptureThreshold
+        let screenshotFolder = store.screenshotFolderURL
         store.prepareForReset()
         ThumbnailCache.shared.clear()
 
         let freshStore = ImageStore()
         freshStore.autoManager.autoCaptureInterval = interval
         freshStore.autoManager.autoCaptureThreshold = threshold
+        freshStore.screenshotFolderURL = screenshotFolder
         store = freshStore
+    }
+
+    func deleteImageData() {
+        guard !store.isProcessing else { return }
+        store.deleteWorkingFolderImagesAndCropFolders()
+        clearWorkData()
     }
 }

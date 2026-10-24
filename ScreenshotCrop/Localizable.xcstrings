@@ -53,17 +53,6 @@
         }
       }
     },
-    "%lld x %lld px" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$lld x %2$lld px"
-          }
-        }
-      },
-      "shouldTranslate" : false
-    },
     "%lld. " : {
       "shouldTranslate" : false
     },
@@ -84,6 +73,22 @@
     },
     "2 Pages" : {
       "shouldTranslate" : false
+    },
+    "Are you sure you want to delete image files (PNG/JPG) and cropped folders in the work folder? ZIP files will be kept." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to delete image files (PNG/JPG) and cropped folders in the work folder? ZIP files will be kept."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作業フォルダ内の画像ファイル（PNG/JPG）とクロップフォルダを削除しますか？ZIPファイルは削除されません。"
+          }
+        }
+      }
     },
     "Analysis Resolution" : {
       "localizations" : {
@@ -491,6 +496,22 @@
         }
       }
     },
+    "Crop Area Size" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crop Area Size"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "切り抜き枠サイズ"
+          }
+        }
+      }
+    },
     "Crop Current Image" : {
       "localizations" : {
         "en" : {
@@ -567,6 +588,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "削除"
+          }
+        }
+      }
+    },
+    "Delete Image Data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Image Data"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像データを削除"
+          }
+        }
+      }
+    },
+    "Deletes screenshots and cropped folders in the work folder. ZIP files are preserved." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deletes screenshots and cropped folders in the work folder. ZIP files are preserved."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作業フォルダ内のスクリーンショット画像とクロップフォルダを削除します。ZIPファイルは保持されます。"
           }
         }
       }
@@ -736,6 +789,7 @@
       }
     },
     "Export Format" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -978,6 +1032,7 @@
       }
     },
     "JPEG" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1057,6 +1112,7 @@
       }
     },
     "Mockup cutouts use PNG to preserve transparency." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1231,6 +1287,7 @@
       }
     },
     "PNG" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1242,6 +1299,7 @@
       "shouldTranslate" : false
     },
     "PNG (Transparent Background)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -1582,6 +1640,7 @@
       }
     },
     "Size: %lld x %lld px" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

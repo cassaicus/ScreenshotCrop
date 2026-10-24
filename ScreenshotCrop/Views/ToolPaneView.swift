@@ -6,6 +6,7 @@ import SwiftUI
 // 右側に表示されるツール操作パネルのビューです
 struct ToolPaneView: View {
     let clearWorkData: () -> Void
+    let deleteImageData: () -> Void
     // 環境オブジェクトからImageStoreを取得します
     @EnvironmentObject var store: ImageStore
     @Environment(\.scenePhase) private var scenePhase
@@ -24,26 +25,13 @@ struct ToolPaneView: View {
     @State private var isZipping: Bool = false
     @State private var zipError: String? = nil
     @State private var lastExportedZipURL: URL? = nil
+    @State private var isShowingDeleteConfirmation: Bool = false
 
     private var isMockupMode: Bool { store.cropMode == .mockup }
 
     // 現在の切り抜き枠の実際のピクセルサイズを計算するヘルパー関数です
     private func pixelSize(for rect: CGRect) -> (width: Int, height: Int) {
-        // 表示サイズに対する実際のピクセルサイズの倍率を計算します
-        let scaleX =
-        store.displayedImageSize.width > 0
-        ? store.currentImagePixelSize.width / store.displayedImageSize.width
-        : 1.0
-        let scaleY =
-        store.displayedImageSize.height > 0
-        ? store.currentImagePixelSize.height
-        / store.displayedImageSize.height : 1.0
-
-        // 四捨五入して整数ピクセル値を返します
-        return (
-            width: Int(round(rect.width * scaleX)),
-            height: Int(round(rect.height * scaleY))
-        )
+        store.pixelSize(for: rect)
     }
 
     // ビューの階層構造を定義します
@@ -405,58 +393,6 @@ struct ToolPaneView: View {
                         .textFieldStyle(.roundedBorder)
                 }
 
-                //            Divider()
-
-                // 保存形式セクション
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Export Format")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    if isMockupMode {
-                        Label("PNG (Transparent Background)", systemImage: "checkmark.circle.fill")
-                            .font(.subheadline)
-                        Text("Mockup cutouts use PNG to preserve transparency.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    } else {
-                        HStack(spacing: 12) {
-                            Toggle(
-                                "PNG",
-                                isOn: Binding(
-                                    get: { store.exportFormat == .png },
-                                    set: { if $0 { store.exportFormat = .png } }
-                                )
-                            )
-                            .toggleStyle(.checkbox)
-
-                            Toggle(
-                                "JPEG",
-                                isOn: Binding(
-                                    get: { store.exportFormat == .jpg },
-                                    set: { if $0 { store.exportFormat = .jpg } }
-                                )
-                            )
-                            .toggleStyle(.checkbox)
-                        }
-
-                        if store.exportFormat == .jpg {
-                            VStack(alignment: .leading, spacing: 2) {
-                                HStack {
-                                    Text("JPEG Quality:")
-                                    Spacer()
-                                    Text(store.jpgQuality, format: .percent.precision(.fractionLength(0)))
-                                        .monospacedDigit()
-                                }
-                                .font(.caption)
-
-                                Slider(value: $store.jpgQuality, in: 0.1...1.0)
-                            }
-                            .padding(.top, 4)
-                        }
-                    }
-                }
                 HStack {
                     Spacer()
                     Button("Next") {
@@ -951,23 +887,54 @@ struct ToolPaneView: View {
 
     private var clearWorkDataSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Button(action: {
-                clearWorkData()
-                withAnimation { currentStep = 1 }
-            }) {
-                Label("Clear Work Data", systemImage: "arrow.counterclockwise")
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-            }
-            .buttonStyle(.bordered)
-            .disabled(store.isProcessing || isZipping)
+            VStack(alignment: .leading, spacing: 4) {
+                Button(action: {
+                    clearWorkData()
+                    withAnimation { currentStep = 1 }
+                }) {
+                    Label("Clear Work Data", systemImage: "arrow.counterclockwise")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.bordered)
+                .disabled(store.isProcessing || isZipping)
 
-            Text("Saved files are kept. Capture interval and stop condition are retained.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                Text("Saved files are kept. Capture interval and stop condition are retained.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 4) {
+                Button(action: {
+                    isShowingDeleteConfirmation = true
+                }) {
+                    Label("Delete Image Data", systemImage: "trash")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.bordered)
+                .tint(.red)
+                .disabled(store.isProcessing || isZipping || store.currentWorkingFolderURL == nil)
+
+                Text("Deletes screenshots and cropped folders in the work folder. ZIP files are preserved.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(.vertical, 8)
+        .alert("Delete Image Data", isPresented: $isShowingDeleteConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                deleteImageData()
+                withAnimation { currentStep = 1 }
+            }
+        } message: {
+            Text("Are you sure you want to delete image files (PNG/JPG) and cropped folders in the work folder? ZIP files will be kept.")
+        }
     }
     @ViewBuilder
     private var mockupBatchSummary: some View {
@@ -1223,38 +1190,115 @@ struct ToolPaneView: View {
             .cornerRadius(8)
         }
 
-        // サイズ表示
-        VStack(alignment: .leading, spacing: 4) {
-            if store.isSpreadMode {
-                let size1 = store.isJapaneseStyle ? pixelSize(for: store.cropRect2) : pixelSize(for: store.cropRect)
-                let size2 = store.isJapaneseStyle ? pixelSize(for: store.cropRect) : pixelSize(for: store.cropRect2)
+        // 切り抜きサイズ表示および微調整コントロール
+        cropSizeControlSection
 
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Page 1:").font(.caption2)
-                        Text("\(size1.width) x \(size1.height) px")
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing) {
-                        Text("Page 2:").font(.caption2)
-                        Text("\(size2.width) x \(size2.height) px")
-                    }
-                }
-
-                Button(action: { store.syncCropSizes() }) {
-                    Label("Sync frame sizes", systemImage: "arrow.right.arrow.left")
-                        .font(.caption2)
-                }
-                .buttonStyle(.borderless)
-            } else {
-                let size = pixelSize(for: store.cropRect)
-                Text("Size: \(size.width) x \(size.height) px")
-            }
         }
-        .font(.system(.body, design: .monospaced))
-        .foregroundColor(.secondary)
-        .frame(maxWidth: .infinity)
+    }
 
+    // サイズ微調整の行ヘルパービュー
+    private func cropSizeAdjustmentRow(
+        label: String,
+        value: Int,
+        onIncrement: @escaping () -> Void,
+        onDecrement: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 8) {
+            Text(label)
+                .font(.caption.monospaced())
+                .foregroundColor(.secondary)
+                .frame(width: 20, alignment: .leading)
+
+            Text("\(value) px")
+                .font(.system(.body, design: .monospaced))
+                .foregroundColor(.primary)
+
+            Spacer()
+
+            Stepper("", onIncrement: onIncrement, onDecrement: onDecrement)
+                .labelsHidden()
+        }
+    }
+
+    // 切り抜き枠のサイズ表示および微調整コントロール
+    @ViewBuilder
+    private var cropSizeControlSection: some View {
+        if store.isShowingCropBox {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Crop Area Size")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+
+                if store.isSpreadMode {
+                    let size1 = store.isJapaneseStyle ? pixelSize(for: store.cropRect2) : pixelSize(for: store.cropRect)
+                    let size2 = store.isJapaneseStyle ? pixelSize(for: store.cropRect) : pixelSize(for: store.cropRect2)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Page 1:")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+
+                        cropSizeAdjustmentRow(label: "W:", value: size1.width) {
+                            store.adjustCropWidth(page: 1, delta: 1)
+                        } onDecrement: {
+                            store.adjustCropWidth(page: 1, delta: -1)
+                        }
+
+                        cropSizeAdjustmentRow(label: "H:", value: size1.height) {
+                            store.adjustCropHeight(page: 1, delta: 1)
+                        } onDecrement: {
+                            store.adjustCropHeight(page: 1, delta: -1)
+                        }
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Page 2:")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+
+                        cropSizeAdjustmentRow(label: "W:", value: size2.width) {
+                            store.adjustCropWidth(page: 2, delta: 1)
+                        } onDecrement: {
+                            store.adjustCropWidth(page: 2, delta: -1)
+                        }
+
+                        cropSizeAdjustmentRow(label: "H:", value: size2.height) {
+                            store.adjustCropHeight(page: 2, delta: 1)
+                        } onDecrement: {
+                            store.adjustCropHeight(page: 2, delta: -1)
+                        }
+                    }
+
+                    Button(action: { store.syncCropSizes() }) {
+                        Label("Sync frame sizes", systemImage: "arrow.right.arrow.left")
+                            .font(.caption2)
+                    }
+                    .buttonStyle(.borderless)
+                } else {
+                    let size = pixelSize(for: store.cropRect)
+
+                    cropSizeAdjustmentRow(label: "W:", value: size.width) {
+                        store.adjustCropWidth(page: 1, delta: 1)
+                    } onDecrement: {
+                        store.adjustCropWidth(page: 1, delta: -1)
+                    }
+
+                    cropSizeAdjustmentRow(label: "H:", value: size.height) {
+                        store.adjustCropHeight(page: 1, delta: 1)
+                    } onDecrement: {
+                        store.adjustCropHeight(page: 1, delta: -1)
+                    }
+                }
+            }
+            .padding(10)
+            .background(Color.secondary.opacity(0.08))
+            .cornerRadius(8)
         }
     }
 
