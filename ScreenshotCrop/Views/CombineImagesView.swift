@@ -3,6 +3,7 @@ import SwiftUI
 
 // 画像を結合するためのビューです
 struct CombineImagesView: View {
+    var mode: ImageStore.CombineMode = .spread
     let onCombineCompleted: () -> Void
     // 環境オブジェクトからImageStoreを取得します
     @EnvironmentObject var store: ImageStore
@@ -14,7 +15,9 @@ struct CombineImagesView: View {
     // 日本式（右開き）かどうかの状態変数です
     @State private var isJapaneseStyle: Bool = false
     // 結合後に元画像を削除するかどうかの状態変数です
-    @State private var shouldDeleteOriginals: Bool = false
+    @State private var shouldDeleteOriginals: Bool = true
+    // 最初のページを表紙として1枚ずらすかどうかの状態変数です
+    @State private var isFirstPageCover: Bool = false
 
     // ビューの階層構造を定義します
     var body: some View {
@@ -24,7 +27,7 @@ struct CombineImagesView: View {
             VStack(spacing: 8) {
                 HStack {
                     // タイトルを表示します
-                    Text("Combine Images")
+                    Text(mode == .cover ? "Cover Combine" : "Spread Combine")
                         .font(.headline)
                     Spacer()
                     // 日本式（右開き）の切り替えトグルです
@@ -32,6 +35,11 @@ struct CombineImagesView: View {
                         .toggleStyle(.checkbox)
                 }
                 HStack {
+                    if mode == .spread {
+                        // 最初のページは表紙である（1枚ずらす）トグル
+                        Toggle("First page is cover (offset by 1)", isOn: $isFirstPageCover)
+                            .toggleStyle(.checkbox)
+                    }
                     Spacer()
                     // 結合後に元画像を削除するトグルです
                     Toggle("Delete original images after combining", isOn: $shouldDeleteOriginals)
@@ -109,11 +117,11 @@ struct CombineImagesView: View {
                 Spacer()
 
                 // 結合実行ボタンです
-                Button("Combine") {
+                Button(mode == .cover ? "Cover Combine" : "Spread Combine") {
                     // 非同期で結合処理を実行します
                     Task {
                         store.shouldDeleteOriginalsAfterCombine = shouldDeleteOriginals
-                        await store.combineImages(pairs: pairs, isJapaneseStyle: isJapaneseStyle)
+                        await store.combineImages(pairs: pairs, isJapaneseStyle: isJapaneseStyle, mode: mode)
                         onCombineCompleted()
                         // 完了後にビューを閉じます
                         dismiss()
@@ -130,10 +138,16 @@ struct CombineImagesView: View {
         .frame(width: 600, height: 600)
         // 表示された時の初期化処理です
         .onAppear {
+            if mode == .spread {
+                isFirstPageCover = store.hasCompletedCoverCombine
+            }
             setupPairs()
             // 初期状態をストアから取得します
             isJapaneseStyle = store.isJapaneseStyle
             shouldDeleteOriginals = store.shouldDeleteOriginalsAfterCombine
+        }
+        .onChange(of: isFirstPageCover) { _, _ in
+            setupPairs()
         }
     }
 
@@ -143,12 +157,23 @@ struct CombineImagesView: View {
         let items = store.loadCroppedImages()
         var newPairs: [ImageStore.ImagePair] = []
 
-        // 2枚ずつペアにしてリストに追加します
-        for i in stride(from: 0, to: items.count, by: 2) {
-            let first = items[i]
-            let second = (i + 1 < items.count) ? items[i + 1] : nil
-            // 最初は全てチェックをOFFにします
-            newPairs.append(ImageStore.ImagePair(first: first, second: second, isSelected: false))
+        if mode == .spread && isFirstPageCover && !items.isEmpty {
+            // 最初のページは表紙として単独（結合対象外）
+            newPairs.append(ImageStore.ImagePair(first: items[0], second: nil, isSelected: false))
+            // 2枚目（インデックス1）から2枚ずつペアにしてリストに追加します
+            for i in stride(from: 1, to: items.count, by: 2) {
+                let first = items[i]
+                let second = (i + 1 < items.count) ? items[i + 1] : nil
+                newPairs.append(ImageStore.ImagePair(first: first, second: second, isSelected: false))
+            }
+        } else {
+            // 通常は先頭から2枚ずつペアにしてリストに追加します
+            for i in stride(from: 0, to: items.count, by: 2) {
+                let first = items[i]
+                let second = (i + 1 < items.count) ? items[i + 1] : nil
+                // 最初は全てチェックをOFFにします
+                newPairs.append(ImageStore.ImagePair(first: first, second: second, isSelected: false))
+            }
         }
 
         self.pairs = newPairs

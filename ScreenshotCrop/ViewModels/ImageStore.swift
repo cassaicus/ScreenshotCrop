@@ -8,6 +8,8 @@ import CoreGraphics
 import Combine
 // 画像のメタデータを効率的に読み込むためのImageIOをインポートします
 import ImageIO
+// ファイル形式の識別子を扱うUniformTypeIdentifiersをインポートします
+import UniformTypeIdentifiers
 
 // メインスレッドで動作することを保証する、画像データを管理するためのストアクラスです
 @MainActor
@@ -174,11 +176,11 @@ final class ImageStore: ObservableObject {
     }
 
     // 保存形式の定義
-    enum ExportFormat: String {
+    enum ExportFormat: String, Sendable {
         case png = "PNG"
         case jpg = "JPEG"
-        
-        var extensionName: String {
+
+        nonisolated var extensionName: String {
             return self.rawValue.lowercased()
         }
     }
@@ -246,7 +248,9 @@ final class ImageStore: ObservableObject {
     // 結合機能が利用可能かどうかのフラグです
     @Published var canCombine: Bool = false
     // 結合後に元画像を削除するかどうかのフラグです
-    @Published var shouldDeleteOriginalsAfterCombine: Bool = false
+    @Published var shouldDeleteOriginalsAfterCombine: Bool = true
+    // 直前に表紙統合を実行したかどうかのフラグです
+    @Published var hasCompletedCoverCombine: Bool = false
     // 直前の書き出しが見開きモードだったかどうかのフラグです
     @Published var wasLastExportSpreadMode: Bool = false
 
@@ -383,6 +387,12 @@ final class ImageStore: ObservableObject {
                 applyAutomaticAreaSpecified()
             }
         }
+    }
+
+    // 画像結合のモードです
+    enum CombineMode: Sendable {
+        case spread // 見開き統合
+        case cover  // 表紙統合
     }
 
     // 結合処理に使用するペアの構造体です
@@ -779,6 +789,64 @@ final class ImageStore: ObservableObject {
         }
     }
 
+    // 出力先フォルダを特定して返します。
+    func resolveOutputFolderURL(folderName: String) -> URL? {
+        if let last = lastOutputFolderURL, FileManager.default.fileExists(atPath: last.path) {
+            return last
+        }
+        if let conversion = conversionFolderURL, FileManager.default.fileExists(atPath: conversion.path) {
+            return conversion
+        }
+        let name = folderName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveName = name.isEmpty ? "Cropped" : name
+        if let loaded = loadedFolderURL {
+            let candidate = (loaded.lastPathComponent == effectiveName || loaded.lastPathComponent == "Cropped")
+                ? loaded : loaded.appendingPathComponent(effectiveName, isDirectory: true)
+            if FileManager.default.fileExists(atPath: candidate.path) {
+                return candidate
+            }
+        }
+        if let first = items.first {
+            let parent = first.url.deletingLastPathComponent()
+            let candidate = parent.appendingPathComponent(effectiveName, isDirectory: true)
+            if FileManager.default.fileExists(atPath: candidate.path) {
+                return candidate
+            }
+        }
+        return nil
+    }
+
+    // 出力先フォルダ名を変更し、内部参照を更新します。
+    func renameOutputFolder(from oldURL: URL, to newName: String) throws -> URL {
+        let cleanName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanName.isEmpty, cleanName != oldURL.lastPathComponent else {
+            return oldURL
+        }
+        let parent = oldURL.deletingLastPathComponent()
+        let newURL = parent.appendingPathComponent(cleanName, isDirectory: true)
+
+        if FileManager.default.fileExists(atPath: newURL.path) {
+            throw NSError(
+                domain: "ImageStore",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "A folder named '\(cleanName)' already exists."]
+            )
+        }
+
+        try FileManager.default.moveItem(at: oldURL, to: newURL)
+
+        if lastOutputFolderURL == oldURL {
+            lastOutputFolderURL = newURL
+        }
+        if conversionFolderURL == oldURL {
+            conversionFolderURL = newURL
+        }
+        if loadedFolderURL == oldURL {
+            loadedFolderURL = newURL
+        }
+        return newURL
+    }
+
     // フォルダ選択パネルを開き、選択されたフォルダから画像を読み込みます
     func pickFolder() {
         // フォルダを開くためのパネルを作成します
@@ -903,15 +971,18 @@ final class ImageStore: ObservableObject {
     // 全ての画像を切り抜いて一括保存する処理です
     func executeCropAll(folderName: String, fileNameBase: String) {
         guard canExecuteCropAll, let firstItem = items.first else { return }
+        hasCompletedCoverCombine = false
         // 処理途中の画像選択や枠・表示サイズの変更に影響されないよう固定します。
         let itemsToCrop = items
         let rectsToCrop = getRectsToCrop()
         let referenceImageSize = displayedImageSize
         let wasSpreadMode = isSpreadMode
+        let format = self.exportFormat
+        let quality = self.jpgQuality
         // 処理中のフラグを立てます
         isProcessing = true
 
-        Task {
+        Task.detached(priority: .userInitiated) {
             // 読み込み元のフォルダURLを取得し、その中に保存用フォルダを作成します
             let sourceFolderURL = firstItem.url.deletingLastPathComponent()
             let outputFolderURL = sourceFolderURL.appendingPathComponent(folderName)
@@ -930,12 +1001,22 @@ final class ImageStore: ObservableObject {
 
             // 全ての画像アイテムに対してループ処理を行います
             for item in itemsToCrop {
-                // 画像を読み込みます。失敗した場合はスキップします
-                guard let image = NSImage(contentsOf: item.url) else { continue }
+                // CGImageSourceから直接読み込みます（NSImageのRetina依存・再サンプリングを完全にバイパス）
+                guard let source = CGImageSourceCreateWithURL(item.url as CFURL, nil),
+                      let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else { continue }
 
-                // 各枠で切り抜き処理を実行します
-                await processImage(image, rectsToCrop: rectsToCrop, referenceImageSize: referenceImageSize, outputFolderURL: outputFolderURL, fileNameBase: fileNameBase, pageCount: &pageCount)
-                
+                // 各枠で切り抜き処理を直接実行します
+                Self.processCGImageDirect(
+                    cgImage,
+                    rectsToCrop: rectsToCrop,
+                    referenceImageSize: referenceImageSize,
+                    outputFolderURL: outputFolderURL,
+                    fileNameBase: fileNameBase,
+                    format: format,
+                    quality: quality,
+                    pageCount: &pageCount
+                )
+
                 // 処理済み件数を更新します
                 await MainActor.run {
                     self.processedCount += 1
@@ -948,7 +1029,7 @@ final class ImageStore: ObservableObject {
                 // 一括書き出し時の見開きモードの状態を記録します
                 self.wasLastExportSpreadMode = wasSpreadMode
                 self.refreshCombineAvailability()
-                isProcessing = false
+                self.isProcessing = false
             }
         }
     }
@@ -963,10 +1044,12 @@ final class ImageStore: ObservableObject {
 
         let rectsToCrop = getRectsToCrop()
         let referenceImageSize = displayedImageSize
+        let format = self.exportFormat
+        let quality = self.jpgQuality
         // 処理中のフラグを立てます
         isProcessing = true
 
-        Task {
+        Task.detached(priority: .userInitiated) {
             // 読み込み元のフォルダURLを取得し、その中に保存用フォルダを作成します
             let sourceFolderURL = item.url.deletingLastPathComponent()
             let outputFolderURL = sourceFolderURL.appendingPathComponent(folderName)
@@ -980,21 +1063,28 @@ final class ImageStore: ObservableObject {
                 self.processedCount = 0
             }
 
-            // ページ番号をカウントします（この画像だけで完結するため1から開始）
-//            var pageCount = 1
-
-            // 画像を読み込みます
-            guard let image = NSImage(contentsOf: item.url) else {
-                await MainActor.run { isProcessing = false }
+            // 画像を直接読み込みます
+            guard let source = CGImageSourceCreateWithURL(item.url as CFURL, nil),
+                  let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+                await MainActor.run { self.isProcessing = false }
                 return
             }
 
             // 個別切り抜き用の連番を検索します（_other_001, _other_002...）
             let otherBase = fileNameBase + "_other"
-            var nextNumber = await findNextOtherNumber(in: outputFolderURL, fileNameBase: otherBase)
-            
-            // 切り抜き処理を実行します（fileNameBaseに"_other"を付加し、pageCountに検索した連番を渡します）
-            await processImage(image, rectsToCrop: rectsToCrop, referenceImageSize: referenceImageSize, outputFolderURL: outputFolderURL, fileNameBase: otherBase, pageCount: &nextNumber)
+            var nextNumber = Self.findNextOtherNumberDirect(in: outputFolderURL, fileNameBase: otherBase, format: format)
+
+            // 切り抜き処理を実行します
+            Self.processCGImageDirect(
+                cgImage,
+                rectsToCrop: rectsToCrop,
+                referenceImageSize: referenceImageSize,
+                outputFolderURL: outputFolderURL,
+                fileNameBase: otherBase,
+                format: format,
+                quality: quality,
+                pageCount: &nextNumber
+            )
 
             // 完了後にフラグを戻します
             await MainActor.run {
@@ -1003,7 +1093,7 @@ final class ImageStore: ObservableObject {
                 self.wasLastExportSpreadMode = false
                 self.refreshCombineAvailability()
                 self.processedCount = 1
-                isProcessing = false
+                self.isProcessing = false
             }
         }
     }
@@ -1024,12 +1114,11 @@ final class ImageStore: ObservableObject {
         }
     }
 
-    // 指定されたフォルダ内で "_other_XXX" 形式の次の空き番号を検索して返します
-    private func findNextOtherNumber(in folderURL: URL, fileNameBase: String) async -> Int {
+    // 指定されたフォルダ内で "_other_XXX" 形式の次の空き番号を検索して返します（直接同期実行）
+    nonisolated private static func findNextOtherNumberDirect(in folderURL: URL, fileNameBase: String, format: ExportFormat) -> Int {
         let fileManager = FileManager.default
-        let format = await MainActor.run { self.exportFormat }
         let ext = format.extensionName
-        
+
         var index = 1
         while index < 1000 { // 999まで
             let testFileName = "\(fileNameBase)_\(String(format: "%03d", index)).\(ext)"
@@ -1041,11 +1130,17 @@ final class ImageStore: ObservableObject {
         return index
     }
 
-    // 1枚の画像に対して指定された複数の枠で切り抜きと保存を行う共通処理です
-    private func processImage(_ image: NSImage, rectsToCrop: [CGRect], referenceImageSize: CGSize, outputFolderURL: URL, fileNameBase: String, pageCount: inout Int) async {
-        // CGImageを取得して、実際のピクセルサイズに基づいた切り抜きを行います
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
-
+    // 1枚の画像に対して指定された複数の枠で切り抜きと保存を行う共通処理です（完全バックグラウンド・Retina非依存）
+    nonisolated private static func processCGImageDirect(
+        _ cgImage: CGImage,
+        rectsToCrop: [CGRect],
+        referenceImageSize: CGSize,
+        outputFolderURL: URL,
+        fileNameBase: String,
+        format: ExportFormat,
+        quality: Double,
+        pageCount: inout Int
+    ) {
         // 実際のピクセル解像度を取得します
         let pixelWidth = CGFloat(cgImage.width)
         let pixelHeight = CGFloat(cgImage.height)
@@ -1065,17 +1160,13 @@ final class ImageStore: ObservableObject {
 
             // CGImageを使用して、劣化のないピクセル単位の切り抜きを実行します
             if let croppedCGImage = cgImage.cropping(to: pixelRect) {
-                // 切り抜かれたCGImageからNSImageを再構成します
-                let croppedImage = NSImage(cgImage: croppedCGImage, size: pixelRect.size)
-
                 // ファイル名を生成します（例: page_001.png）
-                let (format, quality) = await MainActor.run { (self.exportFormat, self.jpgQuality) }
                 let ext = format.extensionName
                 let fileName = "\(fileNameBase)_\(String(format: "%03d", pageCount)).\(ext)"
                 let fileURL = outputFolderURL.appendingPathComponent(fileName)
 
-                // 指定された形式で保存します
-                saveImage(croppedImage, to: fileURL, format: format, quality: quality)
+                // 指定された形式で直接ファイルに高速保存します
+                saveCGImageDirect(croppedCGImage, to: fileURL, format: format, quality: quality)
                 // ページ番号をカウントアップします
                 pageCount += 1
             }
@@ -1110,7 +1201,7 @@ final class ImageStore: ObservableObject {
     }
 
     // 指定されたペアを結合して保存します
-    func combineImages(pairs: [ImagePair], isJapaneseStyle: Bool) async {
+    func combineImages(pairs: [ImagePair], isJapaneseStyle: Bool, mode: CombineMode = .spread) async {
         // 処理中フラグを立てます
         isProcessing = true
 
@@ -1118,6 +1209,7 @@ final class ImageStore: ObservableObject {
         let format = self.exportFormat
         let quality = self.jpgQuality
         let shouldDelete = self.shouldDeleteOriginalsAfterCombine
+        let isCoverMode = (mode == .cover)
 
         // 重い処理をバックグラウンドで実行します
         await Task.detached(priority: .userInitiated) {
@@ -1163,33 +1255,55 @@ final class ImageStore: ObservableObject {
 
                 // コンテキストから画像を作成します
                 guard let combinedCG = context.makeImage() else { continue }
-                let combinedImage = NSImage(cgImage: combinedCG, size: CGSize(width: newWidth, height: newHeight))
 
-                // ファイル名を生成します (xx_001.png + xx_002.png -> xx_001_002.png)
-                let base1 = pair.first.url.deletingPathExtension().lastPathComponent
-                var secondPart = second.url.deletingPathExtension().lastPathComponent
-                // 2枚目のファイル名の最後のアンダースコア以降（番号部分）を取得します
-                if let lastUnderscoreRange = secondPart.range(of: "_", options: .backwards) {
-                    secondPart = String(secondPart[lastUnderscoreRange.upperBound...])
+                let finalCG: CGImage
+                if isCoverMode {
+                    // 表紙統合: 2枚の横幅の平均値を切り抜き幅とし、中央で切り抜く
+                    let cropWidth = round((width1 + width2) / 2.0)
+                    let cropX = round((newWidth - cropWidth) / 2.0)
+                    let cropRect = CGRect(x: cropX, y: 0, width: cropWidth, height: newHeight)
+                    guard let croppedCG = combinedCG.cropping(to: cropRect) else { continue }
+                    finalCG = croppedCG
+                } else {
+                    finalCG = combinedCG
                 }
 
-                // 拡張子を取得して最終的なパスを構築します
-                let ext = pair.first.url.pathExtension
-                let combinedFileName = "\(base1)_\(secondPart).\(ext)"
-                let outputURL = pair.first.url.deletingLastPathComponent().appendingPathComponent(combinedFileName)
+                let outputURL: URL
+                if isCoverMode {
+                    // 表紙統合の場合、1枚目のファイル名を引き継ぐ
+                    outputURL = pair.first.url
+                } else {
+                    // ファイル名を生成します (xx_001.png + xx_002.png -> xx_001_002.png)
+                    let base1 = pair.first.url.deletingPathExtension().lastPathComponent
+                    var secondPart = second.url.deletingPathExtension().lastPathComponent
+                    // 2枚目のファイル名の最後のアンダースコア以降（番号部分）を取得します
+                    if let lastUnderscoreRange = secondPart.range(of: "_", options: .backwards) {
+                        secondPart = String(secondPart[lastUnderscoreRange.upperBound...])
+                    }
 
-                // 非同期タスク内からメインアクターのメソッドを安全に呼び出し、画像を保存します
+                    // 拡張子を取得して最終的なパスを構築します
+                    let ext = pair.first.url.pathExtension
+                    let combinedFileName = "\(base1)_\(secondPart).\(ext)"
+                    outputURL = pair.first.url.deletingLastPathComponent().appendingPathComponent(combinedFileName)
+                }
+
+                // ファイルに直接保存します（バックグラウンド処理）
+                Self.saveCGImageDirect(finalCG, to: outputURL, format: format, quality: quality)
+
+                // メインアクターでキャッシュ更新と元画像削除を行います
                 await MainActor.run {
-                    self.saveImage(combinedImage, to: outputURL, format: format, quality: quality)
+                    ThumbnailCache.shared.removeThumbnail(for: pair.first.url)
+                    ThumbnailCache.shared.removeThumbnail(for: second.url)
 
                     // 保存が成功したか（ファイルが存在するか）確認してから元画像を削除します
                     if shouldDelete && FileManager.default.fileExists(atPath: outputURL.path) {
-                        // キャッシュを削除します
-                        ThumbnailCache.shared.removeThumbnail(for: pair.first.url)
-                        ThumbnailCache.shared.removeThumbnail(for: second.url)
-    
-                        try? FileManager.default.removeItem(at: pair.first.url)
-                        try? FileManager.default.removeItem(at: second.url)
+                        if isCoverMode {
+                            // 表紙統合の場合、1枚目は新しい表紙画像として上書きされたため、2枚目のみ削除します
+                            try? FileManager.default.removeItem(at: second.url)
+                        } else {
+                            try? FileManager.default.removeItem(at: pair.first.url)
+                            try? FileManager.default.removeItem(at: second.url)
+                        }
                     }
                 }
             }
@@ -1197,27 +1311,59 @@ final class ImageStore: ObservableObject {
 
         // 処理中フラグを下ろします
         isProcessing = false
+
+        if mode == .cover {
+            hasCompletedCoverCombine = true
+        } else if mode == .spread {
+            hasCompletedCoverCombine = false
+        }
+    }
+
+    // CGImageをファイルに直接高速保存するヘルパーメソッドです（Retinaやディスプレイ解像度の影響を完全に排除）
+    nonisolated private static func saveCGImageDirect(_ cgImage: CGImage, to url: URL, format: ExportFormat, quality: Double) {
+        let typeIdentifier: CFString = (format == .jpg) ? UTType.jpeg.identifier as CFString : UTType.png.identifier as CFString
+        guard let destination = CGImageDestinationCreateWithURL(url as CFURL, typeIdentifier, 1, nil) else { return }
+
+        var imageToAdd = cgImage
+        var properties: [CFString: Any] = [:]
+
+        if format == .jpg {
+            properties[kCGImageDestinationLossyCompressionQuality] = quality
+            // アルファチャンネルがある場合、白背景で不透明化
+            let alphaInfo = cgImage.alphaInfo
+            let hasAlpha = alphaInfo != .none && alphaInfo != .noneSkipLast && alphaInfo != .noneSkipFirst
+            if hasAlpha {
+                let width = cgImage.width
+                let height = cgImage.height
+                let bounds = CGRect(x: 0, y: 0, width: width, height: height)
+                if let context = CGContext(
+                    data: nil,
+                    width: width,
+                    height: height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: 0,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
+                ) {
+                    context.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1))
+                    context.fill(bounds)
+                    context.draw(cgImage, in: bounds)
+                    if let opaque = context.makeImage() {
+                        imageToAdd = opaque
+                    }
+                }
+            }
+        }
+
+        CGImageDestinationAddImage(destination, imageToAdd, properties as CFDictionary)
+        CGImageDestinationFinalize(destination)
     }
 
     // 画像をファイルに保存するヘルパーメソッドです
     private func saveImage(_ image: NSImage, to url: URL, format: ExportFormat, quality: Double) {
         // NSImageから直接CGImageを取得して、メタデータを保持しつつ変換します
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
-        let bitmapRep = NSBitmapImageRep(cgImage: cgImage)
-
-        let data: Data?
-        if format == .jpg {
-            // JPEG形式のデータを生成します（圧縮率を指定）
-            data = bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: quality])
-        } else {
-            // PNG形式のデータを生成します
-            data = bitmapRep.representation(using: .png, properties: [:])
-        }
-
-        // ファイルに書き出します
-        if let data = data {
-            try? data.write(to: url)
-        }
+        Self.saveCGImageDirect(cgImage, to: url, format: format, quality: quality)
     }
 
     // 外部から画像を保存するためのメソッドです（AutoScreenshotManagerなどで使用）

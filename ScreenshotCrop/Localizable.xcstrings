@@ -313,7 +313,24 @@
         }
       }
     },
+    "Clear Work Data" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Work Data"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作業データをクリア"
+          }
+        }
+      }
+    },
     "Combine" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -330,6 +347,7 @@
       }
     },
     "Combine Images" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -341,6 +359,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "画像を結合"
+          }
+        }
+      }
+    },
+    "Compress to ZIP and Save" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compress to ZIP and Save"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZIPに圧縮して保存"
+          }
+        }
+      }
+    },
+    "Compressing..." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compressing..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圧縮中..."
           }
         }
       }
@@ -389,6 +439,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "コントラスト：%.1f"
+          }
+        }
+      }
+    },
+    "Convert PNG to JPG" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Convert PNG to JPG"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNGをJPGに変換"
+          }
+        }
+      }
+    },
+    "Converted: %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converted: %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変換済み: %lld枚"
+          }
+        }
+      }
+    },
+    "Cover Combine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cover Combine"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表紙統合"
           }
         }
       }
@@ -595,12 +693,44 @@
         }
       }
     },
+    "Enter a name to rename the folder before compressing. Leave blank to keep the current name." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a name to rename the folder before compressing. Leave blank to keep the current name."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圧縮前にフォルダ名を変更する場合は入力してください。空欄なら現在の名前のまま圧縮されます。"
+          }
+        }
+      }
+    },
     "Execute Cropping" : {
       "localizations" : {
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "クロッピング実行"
+          }
+        }
+      }
+    },
+    "Export as ZIP" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as ZIP"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZIP圧縮して保存"
           }
         }
       }
@@ -695,6 +825,22 @@
         }
       }
     },
+    "First page is cover (offset by 1)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First page is cover (offset by 1)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最初のページは表紙（1枚ずらす）"
+          }
+        }
+      }
+    },
     "Folder name" : {
       "localizations" : {
         "en" : {
@@ -707,6 +853,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フォルダ名"
+          }
+        }
+      }
+    },
+    "Folder Name (Optional)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder Name (Optional)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダ名 (任意)"
           }
         }
       }
@@ -733,6 +895,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フローティングパネルを隠す"
+          }
+        }
+      }
+    },
+    "Image Conversion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Image Conversion"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "画像変換"
           }
         }
       }
@@ -936,6 +1114,22 @@
         }
       }
     },
+    "No output folder found. Please execute cropping first." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No output folder found. Please execute cropping first."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出力フォルダが見つかりません。先に切り抜きを実行してください。"
+          }
+        }
+      }
+    },
     "None" : {
       "localizations" : {
         "en" : {
@@ -1063,6 +1257,22 @@
         }
       }
     },
+    "PNG files: %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNG files: %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PNG画像: %lld枚"
+          }
+        }
+      }
+    },
     "PNG Saved" : {
       "localizations" : {
         "en" : {
@@ -1169,6 +1379,22 @@
         }
       }
     },
+    "Saved files are kept. Capture interval and stop condition are retained." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved files are kept. Capture interval and stop condition are retained."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存済みファイルは残ります。撮影間隔と停止条件は保持されます。"
+          }
+        }
+      }
+    },
     "Saved: %lld, skipped: %lld, failed: %lld" : {
       "localizations" : {
         "en" : {
@@ -1261,6 +1487,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "スクリーンショット設定"
+          }
+        }
+      }
+    },
+    "Select a folder to save the ZIP archive" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a folder to save the ZIP archive"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZIPアーカイブを保存するフォルダを選択してください"
           }
         }
       }
@@ -1397,6 +1639,22 @@
         }
       }
     },
+    "Spread Combine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spread Combine"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "見開き統合"
+          }
+        }
+      }
+    },
     "Start Capture" : {
       "localizations" : {
         "ja" : {
@@ -1427,6 +1685,22 @@
         }
       }
     },
+    "Successfully converted PNG files are deleted. Transparent areas become white." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successfully converted PNG files are deleted. Transparent areas become white."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変換に成功したPNG画像は削除されます。透明部分は白色になります。"
+          }
+        }
+      }
+    },
     "Sync frame sizes" : {
       "localizations" : {
         "en" : {
@@ -1439,6 +1713,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フレームサイズを同期"
+          }
+        }
+      }
+    },
+    "Target Folder:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Target Folder:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "対象フォルダ:"
           }
         }
       }
@@ -1549,114 +1839,18 @@
         }
       }
     },
-    "Image Conversion" : {
+    "ZIP Saved" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Image Conversion"
+            "value" : "ZIP Saved"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "画像変換"
-          }
-        }
-      }
-    },
-    "Convert PNG to JPG" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Convert PNG to JPG"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PNGをJPGに変換"
-          }
-        }
-      }
-    },
-    "PNG files: %lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PNG files: %lld"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PNG画像: %lld枚"
-          }
-        }
-      }
-    },
-    "Converted: %lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Converted: %lld"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "変換済み: %lld枚"
-          }
-        }
-      }
-    },
-    "Successfully converted PNG files are deleted. Transparent areas become white." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Successfully converted PNG files are deleted. Transparent areas become white."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "変換に成功したPNG画像は削除されます。透明部分は白色になります。"
-          }
-        }
-      }
-    },
-    "Clear Work Data" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear Work Data"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "作業データをクリア"
-          }
-        }
-      }
-    },
-    "Saved files are kept. Capture interval and stop condition are retained." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saved files are kept. Capture interval and stop condition are retained."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存済みファイルは残ります。撮影間隔と停止条件は保持されます。"
+            "value" : "ZIPを保存しました"
           }
         }
       }

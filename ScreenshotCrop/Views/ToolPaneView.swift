@@ -15,9 +15,15 @@ struct ToolPaneView: View {
     @State private var fileName: String = "page"
     // 結合用ウィンドウの表示状態を管理します
     @State private var isShowingCombineSheet: Bool = false
+    // 結合モード（見開き統合 / 表紙統合）を管理します
+    @State private var combineMode: ImageStore.CombineMode = .spread
     // 現在のステップを管理する状態変数です
     @State private var currentStep: Int = 1
     @State private var isShowingMockupDetectionSettings = false
+    @State private var customZipFolderName: String = ""
+    @State private var isZipping: Bool = false
+    @State private var zipError: String? = nil
+    @State private var lastExportedZipURL: URL? = nil
 
     private var isMockupMode: Bool { store.cropMode == .mockup }
 
@@ -86,11 +92,16 @@ struct ToolPaneView: View {
             if !showing { store.refreshImageConversionAvailability(folderName: folderName) }
         }
         .sheet(isPresented: $isShowingCombineSheet) {
-            CombineImagesView(onCombineCompleted: {
-                store.refreshImageConversionAvailability(folderName: folderName)
-                withAnimation { currentStep = 6 }
-            })
-                .environmentObject(store)
+            CombineImagesView(
+                mode: combineMode,
+                onCombineCompleted: {
+                    store.refreshImageConversionAvailability(folderName: folderName)
+                    if combineMode == .spread {
+                        withAnimation { currentStep = 6 }
+                    }
+                }
+            )
+            .environmentObject(store)
         }
         .sheet(isPresented: $store.isShowingScreenshotCleanupSheet) {
             ScreenshotCleanupView()
@@ -571,22 +582,43 @@ struct ToolPaneView: View {
                     }
 
                     if !isMockupMode {
-                        // 画像を結合するボタン
-                        Button(action: {
-                            isShowingCombineSheet = true
-                        }) {
-                            HStack {
-                                Image(systemName: "plus.square.fill.on.square.fill")
-                                Text("Combine Images")
+                        VStack(spacing: 8) {
+                            // 表紙統合ボタン
+                            Button(action: {
+                                combineMode = .cover
+                                isShowingCombineSheet = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "book.closed")
+                                    Text("Cover Combine")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                            .buttonStyle(.borderedProminent)
+                            .tint((!store.canCombine || store.isProcessing) ? .secondary : .blue)
+                            .disabled(!store.canCombine || store.isProcessing)
+                            // 非アクティブ時は透過させて、より押せないことを強調します
+                            .opacity((!store.canCombine || store.isProcessing) ? 0.3 : 1.0)
+
+                            // 見開き統合ボタン（従来の画像結合ボタン）
+                            Button(action: {
+                                combineMode = .spread
+                                isShowingCombineSheet = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "plus.square.fill.on.square.fill")
+                                    Text("Spread Combine")
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .tint((!store.canCombine || store.isProcessing) ? .secondary : .blue)
+                            .disabled(!store.canCombine || store.isProcessing)
+                            // 非アクティブ時は透過させて、より押せないことを強調します
+                            .opacity((!store.canCombine || store.isProcessing) ? 0.3 : 1.0)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .tint((!store.canCombine || store.isProcessing) ? .secondary : .blue)
-                        .disabled(!store.canCombine || store.isProcessing)
-                        // 非アクティブ時は透過させて、より押せないことを強調します
-                        .opacity((!store.canCombine || store.isProcessing) ? 0.3 : 1.0)
 
                     } else if let url = store.lastMockupOutputURL {
                         Text(url.lastPathComponent).font(.caption).textSelection(.enabled)
@@ -598,6 +630,14 @@ struct ToolPaneView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
+                    HStack {
+                        Spacer()
+                        Button("Next") {
+                            withAnimation { currentStep = 6 }
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+
                 }
                 .padding(.vertical, 8)
             }
@@ -605,6 +645,16 @@ struct ToolPaneView: View {
             stepHeader(title: "Image Conversion", step: 6)
             if currentStep == 6 {
                 imageConversionSection
+            }
+            Divider()
+            stepHeader(title: "Export as ZIP", step: 7)
+            if currentStep == 7 {
+                zipCompressionSection
+            }
+            Divider()
+            stepHeader(title: "Clear Work Data", step: 8)
+            if currentStep == 8 {
+                clearWorkDataSection
             }
         }
     }
@@ -676,20 +726,211 @@ struct ToolPaneView: View {
                 }
                 .buttonStyle(.bordered)
             }
-            Button(action: clearWorkData) {
+            HStack {
+                Spacer()
+                Button("Next") {
+                    withAnimation { currentStep = 7 }
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+        .padding(.vertical, 8)
+        .onAppear { store.refreshImageConversionAvailability(folderName: folderName) }
+    }
+
+    private var currentOutputFolderURL: URL? {
+        store.resolveOutputFolderURL(folderName: folderName)
+    }
+
+    private var zipCompressionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            let outputFolder = currentOutputFolderURL
+            let isAvailable = outputFolder != nil
+
+            if let folder = outputFolder {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Target Folder:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(folder.lastPathComponent)
+                        .font(.body)
+                        .bold()
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                    Text(folder.path)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+            } else {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.orange)
+                    Text("No output folder found. Please execute cropping first.")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(8)
+                .background(Color.orange.opacity(0.1))
+                .cornerRadius(4)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Folder Name (Optional)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                TextField(
+                    outputFolder?.lastPathComponent ?? folderName,
+                    text: $customZipFolderName
+                )
+                .textFieldStyle(.roundedBorder)
+                .disabled(!isAvailable || isZipping || store.isProcessing)
+
+                Text("Enter a name to rename the folder before compressing. Leave blank to keep the current name.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Button {
+                executeZipExport()
+            } label: {
+                HStack {
+                    if isZipping {
+                        ProgressView().controlSize(.small)
+                        Text("Compressing...")
+                    } else {
+                        Label("Compress to ZIP and Save", systemImage: "archivebox")
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(isAvailable && !isZipping && !store.isProcessing ? .blue : .secondary)
+            .disabled(!isAvailable || isZipping || store.isProcessing)
+
+            if let error = zipError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundColor(.orange)
+                    .textSelection(.enabled)
+            }
+
+            if let zipURL = lastExportedZipURL {
+                VStack(alignment: .leading, spacing: 4) {
+                    Label("ZIP Saved", systemImage: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                    Text(zipURL.lastPathComponent)
+                        .font(.caption)
+                        .bold()
+                        .textSelection(.enabled)
+
+                    Button {
+                        NSWorkspace.shared.activateFileViewerSelecting([zipURL])
+                    } label: {
+                        Label("Show in Finder", systemImage: "folder")
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 4)
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding(8)
+                .background(Color.green.opacity(0.05))
+                .cornerRadius(6)
+            }
+
+            HStack {
+                Spacer()
+                Button("Next") {
+                    withAnimation { currentStep = 8 }
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+        .padding(.vertical, 8)
+    }
+
+    private func executeZipExport() {
+        guard let sourceFolder = currentOutputFolderURL else { return }
+
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.prompt = NSLocalizedString("Select Folder", comment: "")
+        panel.message = NSLocalizedString("Select a folder to save the ZIP archive", comment: "")
+
+        guard panel.runModal() == .OK, let destinationFolderURL = panel.url else { return }
+
+        let trimmed = customZipFolderName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let effectiveFolderName = trimmed.isEmpty ? sourceFolder.lastPathComponent : trimmed
+
+        isZipping = true
+        zipError = nil
+        lastExportedZipURL = nil
+
+        Task {
+            defer {
+                Task { @MainActor in
+                    isZipping = false
+                }
+            }
+            do {
+                let folderToCompress: URL
+                if effectiveFolderName != sourceFolder.lastPathComponent {
+                    folderToCompress = try await MainActor.run {
+                        try store.renameOutputFolder(from: sourceFolder, to: effectiveFolderName)
+                    }
+                    await MainActor.run {
+                        folderName = effectiveFolderName
+                        customZipFolderName = ""
+                    }
+                } else {
+                    folderToCompress = sourceFolder
+                }
+
+                let destZipURL = destinationFolderURL.appendingPathComponent("\(effectiveFolderName).zip")
+
+                try await ZipService.compressFolder(
+                    sourceFolderURL: folderToCompress,
+                    destinationZipURL: destZipURL,
+                    overwrite: true
+                )
+
+                await MainActor.run {
+                    lastExportedZipURL = destZipURL
+                }
+            } catch {
+                await MainActor.run {
+                    zipError = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private var clearWorkDataSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button(action: {
+                clearWorkData()
+                withAnimation { currentStep = 1 }
+            }) {
                 Label("Clear Work Data", systemImage: "arrow.counterclockwise")
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
             }
             .buttonStyle(.bordered)
-            .disabled(store.isProcessing)
+            .disabled(store.isProcessing || isZipping)
+
             Text("Saved files are kept. Capture interval and stop condition are retained.")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.vertical, 8)
-        .onAppear { store.refreshImageConversionAvailability(folderName: folderName) }
     }
     @ViewBuilder
     private var mockupBatchSummary: some View {
