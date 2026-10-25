@@ -4,6 +4,19 @@
     "" : {
       "shouldTranslate" : false
     },
+    "(%lldp)" : {
+
+    },
+    "#%lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "#%1$lld %2$@"
+          }
+        }
+      }
+    },
     "%@sec" : {
       "shouldTranslate" : false
     },
@@ -74,6 +87,22 @@
     "2 Pages" : {
       "shouldTranslate" : false
     },
+    "Analysis Resolution" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analysis Resolution"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解析解像度"
+          }
+        }
+      }
+    },
     "Are you sure you want to delete image files (PNG/JPG) and cropped folders in the work folder? ZIP files will be kept." : {
       "localizations" : {
         "en" : {
@@ -90,21 +119,8 @@
         }
       }
     },
-    "Analysis Resolution" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Analysis Resolution"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "解析解像度"
-          }
-        }
-      }
+    "Auto-Detect Covers" : {
+
     },
     "Automatic Area Specified" : {
       "localizations" : {
@@ -244,6 +260,9 @@
         }
       }
     },
+    "Cancel Split" : {
+
+    },
     "Candidate %lld" : {
       "localizations" : {
         "en" : {
@@ -333,6 +352,12 @@
           }
         }
       }
+    },
+    "Click on a cover image to mark a new volume, or use auto-detection." : {
+
+    },
+    "Color" : {
+
     },
     "Combine" : {
       "extractionState" : "stale",
@@ -608,22 +633,6 @@
         }
       }
     },
-    "Deletes screenshots and cropped folders in the work folder. ZIP files are preserved." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deletes screenshots and cropped folders in the work folder. ZIP files are preserved."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "作業フォルダ内のスクリーンショット画像とクロップフォルダを削除します。ZIPファイルは保持されます。"
-          }
-        }
-      }
-    },
     "Delete original images after combining" : {
       "localizations" : {
         "ja" : {
@@ -646,6 +655,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "不要なスクリーンショットを削除"
+          }
+        }
+      }
+    },
+    "Deletes screenshots and cropped folders in the work folder. ZIP files are preserved." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deletes screenshots and cropped folders in the work folder. ZIP files are preserved."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作業フォルダ内のスクリーンショット画像とクロップフォルダを削除します。ZIPファイルは保持されます。"
           }
         }
       }
@@ -681,6 +706,9 @@
           }
         }
       }
+    },
+    "Detecting (%lld%%)..." : {
+
     },
     "Detecting Contours…" : {
       "localizations" : {
@@ -746,6 +774,9 @@
         }
       }
     },
+    "e.g. MangaTitle or Vol_" : {
+
+    },
     "Enter a name to rename the folder before compressing. Leave blank to keep the current name." : {
       "localizations" : {
         "en" : {
@@ -761,6 +792,15 @@
           }
         }
       }
+    },
+    "Every" : {
+
+    },
+    "Exclude and delete this screenshot" : {
+
+    },
+    "Excluded: %lld" : {
+
     },
     "Execute Cropping" : {
       "localizations" : {
@@ -923,6 +963,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フォルダ名 (任意)"
+          }
+        }
+      }
+    },
+    "Folder Prefix:" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder Prefix:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダ名:"
           }
         }
       }
@@ -1270,6 +1326,12 @@
         }
       }
     },
+    "pages" : {
+
+    },
+    "Pages" : {
+
+    },
     "Please select an image" : {
       "localizations" : {
         "en" : {
@@ -1404,6 +1466,25 @@
           }
         }
       }
+    },
+    "Renumber files inside folder (001.png, 002.png...)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renumber files inside folder (001.png, 002.png...)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォルダ内のファイルを連番化 (001.png, 002.png...)"
+          }
+        }
+      }
+    },
+    "Reset" : {
+
     },
     "Reset Detection Settings" : {
       "localizations" : {
@@ -1682,6 +1763,105 @@
         }
       }
     },
+    "Sort into %lld Volume Folders" : {
+
+    },
+    "Sort into Volume Folders" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort into Volume Folders"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "巻ごとにフォルダ仕分け"
+          }
+        }
+      }
+    },
+    "Sort Screenshots into Volumes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort Screenshots into Volumes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各巻ごとにフォルダ仕分け"
+          }
+        }
+      }
+    },
+    "Start New Vol" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start New Vol"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ここから新巻"
+          }
+        }
+      }
+    },
+    "Cancel Split" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel Split"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "区切り解除"
+          }
+        }
+      }
+    },
+    "Reset All Splits" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset All Splits"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての区切りを解除"
+          }
+        }
+      }
+    },
+    "Exclude" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exclude"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "除外"
+          }
+        }
+      }
+    },
     "Specify Area" : {
       "localizations" : {
         "en" : {
@@ -1697,6 +1877,9 @@
           }
         }
       }
+    },
+    "Split" : {
+
     },
     "Spread Combine" : {
       "localizations" : {
@@ -1723,6 +1906,9 @@
           }
         }
       }
+    },
+    "Start New Vol" : {
+
     },
     "Stop Capture" : {
       "localizations" : {
@@ -1865,6 +2051,9 @@
           }
         }
       }
+    },
+    "Vol. %lld" : {
+
     },
     "White" : {
       "localizations" : {

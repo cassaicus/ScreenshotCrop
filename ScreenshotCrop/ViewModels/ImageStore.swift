@@ -271,6 +271,8 @@ final class ImageStore: ObservableObject {
     @Published var capturedCount: Int = 0
     // スクリーンショット削除用ウィンドウの表示状態を管理します
     @Published var isShowingScreenshotCleanupSheet: Bool = false
+    // スクリーンショットフォルダ仕分けウィンドウの表示状態を管理します
+    @Published var isShowingFolderSplitSheet: Bool = false
 
     // --- 自動スクリーンショット用 ---
     // 自動キャプチャを管理するオブジェクトです
@@ -302,6 +304,7 @@ final class ImageStore: ObservableObject {
         clearMockupContours()
         cancellables.removeAll()
         isShowingScreenshotCleanupSheet = false
+        isShowingFolderSplitSheet = false
         isScreenshotMode = false
     }
 
@@ -1682,6 +1685,57 @@ final class ImageStore: ObservableObject {
             // リストを最新の状態に更新します
             loadImages(from: folderURL)
         }
+    }
+
+    // 画像を指定された巻フォルダごとに仕分ける処理です
+    func organizeImagesIntoVolumes(
+        groups: [(folderName: String, items: [ImageItem])],
+        itemsToDelete: [ImageItem] = [],
+        renumberFiles: Bool = false
+    ) {
+        let fileManager = FileManager.default
+        guard let baseFolderURL = screenshotFolderURL else { return }
+
+        // 不要なアイテムを削除
+        for item in itemsToDelete {
+            ThumbnailCache.shared.removeThumbnail(for: item.url)
+            try? fileManager.removeItem(at: item.url)
+        }
+
+        // 各グループごとにフォルダ作成してファイルを移動
+        for group in groups {
+            guard !group.items.isEmpty else { continue }
+            let targetFolderURL = baseFolderURL.appendingPathComponent(group.folderName, isDirectory: true)
+
+            if !fileManager.fileExists(atPath: targetFolderURL.path) {
+                try? fileManager.createDirectory(at: targetFolderURL, withIntermediateDirectories: true)
+            }
+
+            for (index, item) in group.items.enumerated() {
+                ThumbnailCache.shared.removeThumbnail(for: item.url)
+                let ext = item.url.pathExtension
+                let newFileName: String
+                if renumberFiles {
+                    newFileName = String(format: "%03d.%@", index + 1, ext)
+                } else {
+                    newFileName = item.url.lastPathComponent
+                }
+                let destinationURL = targetFolderURL.appendingPathComponent(newFileName)
+
+                var finalDestURL = destinationURL
+                var counter = 1
+                while fileManager.fileExists(atPath: finalDestURL.path) && finalDestURL != item.url {
+                    let baseName = destinationURL.deletingPathExtension().lastPathComponent
+                    finalDestURL = targetFolderURL.appendingPathComponent("\(baseName)_\(counter).\(ext)")
+                    counter += 1
+                }
+
+                try? fileManager.moveItem(at: item.url, to: finalDestURL)
+            }
+        }
+
+        // リストを最新の状態に更新します
+        loadImages(from: baseFolderURL)
     }
 
     // --- フローティングパネルのメソッド ---

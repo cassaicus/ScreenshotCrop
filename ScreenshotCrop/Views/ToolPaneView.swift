@@ -123,6 +123,10 @@ struct ToolPaneView: View {
                     }
                 }
         }
+        .sheet(isPresented: $store.isShowingFolderSplitSheet) {
+            VolumeSplitView()
+                .environmentObject(store)
+        }
         .onChange(of: store.isScreenshotMode) { old, isScreenshot in
             if !isScreenshot && !store.items.isEmpty {
                 withAnimation { currentStep = 2 }
@@ -278,6 +282,41 @@ struct ToolPaneView: View {
                 }
                 .buttonStyle(.bordered)
                 .tint(.red)
+
+                Button(action: {
+                    // フォルダ仕分け用シートを表示します
+                    store.isShowingFolderSplitSheet = true
+                }) {
+                    HStack {
+                        Image(systemName: "folder.badge.gearshape")
+                        Text("Sort into Volume Folders")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 4)
+                }
+                .buttonStyle(.bordered)
+                .tint(.blue)
+            }
+
+            Divider()
+
+            // 作業データをクリアするボタン
+            VStack(alignment: .leading, spacing: 4) {
+                Button(action: {
+                    clearWorkData()
+                    withAnimation { currentStep = 1 }
+                }) {
+                    Label("Clear Work Data", systemImage: "arrow.counterclockwise")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                }
+                .buttonStyle(.bordered)
+                .disabled(store.isProcessing)
+
+                Text("Saved files are kept. Capture interval and stop condition are retained.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer()
