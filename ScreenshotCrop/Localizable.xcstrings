@@ -119,9 +119,6 @@
         }
       }
     },
-    "Auto-Detect Covers" : {
-
-    },
     "Automatic Area Specified" : {
       "localizations" : {
         "en" : {
@@ -353,10 +350,7 @@
         }
       }
     },
-    "Click on a cover image to mark a new volume, or use auto-detection." : {
-
-    },
-    "Color" : {
+    "Click on a cover image (or 'Start New Vol') to mark the start of each volume. Excluded images will be deleted." : {
 
     },
     "Combine" : {
@@ -707,9 +701,6 @@
         }
       }
     },
-    "Detecting (%lld%%)..." : {
-
-    },
     "Detecting Contours…" : {
       "localizations" : {
         "en" : {
@@ -793,8 +784,21 @@
         }
       }
     },
-    "Every" : {
-
+    "Exclude" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exclude"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "除外"
+          }
+        }
+      }
     },
     "Exclude and delete this screenshot" : {
 
@@ -1326,12 +1330,6 @@
         }
       }
     },
-    "pages" : {
-
-    },
-    "Pages" : {
-
-    },
     "Please select an image" : {
       "localizations" : {
         "en" : {
@@ -1483,8 +1481,21 @@
         }
       }
     },
-    "Reset" : {
-
+    "Reset All Splits" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset All Splits"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての区切りを解除"
+          }
+        }
+      }
     },
     "Reset Detection Settings" : {
       "localizations" : {
@@ -1798,70 +1809,6 @@
         }
       }
     },
-    "Start New Vol" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Start New Vol"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ここから新巻"
-          }
-        }
-      }
-    },
-    "Cancel Split" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel Split"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "区切り解除"
-          }
-        }
-      }
-    },
-    "Reset All Splits" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reset All Splits"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべての区切りを解除"
-          }
-        }
-      }
-    },
-    "Exclude" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exclude"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "除外"
-          }
-        }
-      }
-    },
     "Specify Area" : {
       "localizations" : {
         "en" : {
@@ -1877,9 +1824,6 @@
           }
         }
       }
-    },
-    "Split" : {
-
     },
     "Spread Combine" : {
       "localizations" : {
@@ -1908,7 +1852,20 @@
       }
     },
     "Start New Vol" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start New Vol"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ここから新巻"
+          }
+        }
+      }
     },
     "Stop Capture" : {
       "localizations" : {
